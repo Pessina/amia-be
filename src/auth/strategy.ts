@@ -23,8 +23,6 @@ const firebase_params = {
 //   clientC509CertUrl: process.env.FIREBASE_CLIENT_X509_CERT_URL,
 // };
 
-console.log(firebase_params);
-
 @Injectable()
 export class FirebaseAuthStrategy extends PassportStrategy(
   Strategy,
@@ -44,7 +42,6 @@ export class FirebaseAuthStrategy extends PassportStrategy(
       .auth()
       .verifyIdToken(token, true)
       .catch((err) => {
-        console.log(err);
         throw new UnauthorizedException(err.message);
       });
     if (!firebaseUser) {
