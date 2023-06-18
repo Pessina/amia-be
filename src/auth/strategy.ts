@@ -37,6 +37,7 @@ export class FirebaseAuthStrategy extends PassportStrategy(
       credential: firebase.credential.cert(firebase_params),
     });
   }
+
   async validate(token: string) {
     const firebaseUser: any = await this.defaultApp
       .auth()
