@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import { CreatePatientDto } from './dto/create-patient-dto';
-import { Patient } from '@prisma/client';
+import { Patient, Prisma } from '@prisma/client';
 
 @Injectable()
 export class PatientService {
@@ -21,15 +21,16 @@ export class PatientService {
     });
   }
 
-  async getPatients(id: string, name: string): Promise<Patient[]> {
-    const where = {};
-    if (id) {
-      where['id'] = id;
+  async searchPatients(id?: string, name?: string): Promise<Patient[]> {
+    const where: Prisma.PatientWhereInput = {};
+    if (id !== undefined) {
+      where['id'] = {
+        contains: id,
+      };
     }
     if (name) {
       where['name'] = {
         contains: name,
-        mode: 'insensitive',
       };
     }
     return this.prisma.patient.findMany({ where });

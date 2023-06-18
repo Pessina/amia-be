@@ -13,10 +13,10 @@ export class PatientController {
   }
 
   @Get('search')
-  async getPatients(
+  async searchPatients(
     @Query('id') id: string,
     @Query('name') name: string,
   ): Promise<Patient[]> {
-    return this.patientService.getPatients(id, name);
+    return this.patientService.searchPatients(id, name);
   }
 }
