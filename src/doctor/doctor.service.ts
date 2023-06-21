@@ -6,9 +6,17 @@ import { CreateDoctorDto } from './dto/create-doctor.dto';
 export class DoctorService {
   constructor(private prisma: PrismaService) {}
 
-  async createDoctor(data: CreateDoctorDto) {
+  async createDoctor(data: {
+    firebaseUserUID: string;
+    email: string;
+    data: CreateDoctorDto;
+  }) {
     const doctor = await this.prisma.doctor.create({
-      data,
+      data: {
+        ...data.data,
+        email: data.email,
+        firebaseUserUID: data.firebaseUserUID,
+      },
     });
 
     return doctor;
