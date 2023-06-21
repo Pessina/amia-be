@@ -20,8 +20,8 @@ export class PatientController {
   @ApiBody({ type: CreatePatientDto })
   @UseGuards(AppAuthGuard)
   @Post()
-  async createPatient(@Body() patientData: CreatePatientDto) {
-    return this.patientService.createPatient(patientData);
+  async createPatient(@Req() req, @Body() patientData: CreatePatientDto) {
+    return this.patientService.createPatient(req.user.id, patientData);
   }
 
   @UseGuards(AppAuthGuard)
@@ -31,10 +31,6 @@ export class PatientController {
     @Query('id') id: string,
     @Query('name') name: string,
   ): Promise<Patient[]> {
-    return this.patientService.searchPatients(
-      req.user.firebaseUserUID,
-      id,
-      name,
-    );
+    return this.patientService.searchPatients(req.user.id, id, name);
   }
 }

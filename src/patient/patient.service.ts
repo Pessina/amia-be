@@ -7,14 +7,14 @@ import { Patient, Prisma } from '@prisma/client';
 export class PatientService {
   constructor(private prisma: PrismaService) {}
 
-  async createPatient(data: CreatePatientDto) {
+  async createPatient(doctorId: number, data: CreatePatientDto) {
     return this.prisma.patient.create({
       data: {
         assignedId: data.assignedId,
         name: data.name,
         Doctor: {
           connect: {
-            firebaseUserUID: data.doctorId,
+            id: doctorId,
           },
         },
       },
@@ -22,7 +22,7 @@ export class PatientService {
   }
 
   async searchPatients(
-    doctorId: string,
+    doctorId: number,
     id?: string,
     name?: string,
   ): Promise<Patient[]> {

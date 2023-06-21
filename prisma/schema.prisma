@@ -8,7 +8,8 @@ datasource db {
 }
 
 model Doctor {
-  firebaseUserUID String      @id @unique
+  id              Int         @id @default(autoincrement())
+  firebaseUserUID String      @unique
   name            String      @db.VarChar(255)
   email           String      @unique @db.VarChar(320)   
   cpf             String      @unique @db.VarChar(11)    
@@ -23,11 +24,11 @@ model Patient {
   id          Int       @id @default(autoincrement())
   assignedId  String    
   name        String    @db.VarChar(255)
-  doctorId    String
+  doctorId    Int
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   visits      Visit[]
-  Doctor      Doctor    @relation(fields: [doctorId], references: [firebaseUserUID])
+  Doctor      Doctor    @relation(fields: [doctorId], references: [id])
 
   @@unique([doctorId, assignedId])
 }
