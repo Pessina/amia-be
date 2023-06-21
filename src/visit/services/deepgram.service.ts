@@ -19,7 +19,7 @@ export class DeepgramService {
       const response = await this.deepgram.transcription.preRecorded(source, {
         smart_format: true,
         model: 'nova',
-        // language: 'pt-BR', // Only available on paid version
+        // language: 'pt-BR', // Only support english STT on free version
       });
 
       if ('results' in response) {
