@@ -19,7 +19,7 @@ const firebase_params = {
 
 @Injectable()
 export class AuthStrategy extends PassportStrategy(Strategy, 'firebase-auth') {
-  private defaultApp: any;
+  private defaultApp: firebase.app.App;
   constructor(private prisma: PrismaService) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -30,7 +30,7 @@ export class AuthStrategy extends PassportStrategy(Strategy, 'firebase-auth') {
   }
 
   async validate(token: string) {
-    const firebaseUser: any = await this.defaultApp
+    const firebaseUser = await this.defaultApp
       .auth()
       .verifyIdToken(token, true)
       .catch(() => {

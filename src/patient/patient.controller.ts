@@ -5,7 +5,7 @@ import {
   Get,
   Query,
   UseGuards,
-  Request,
+  Req,
 } from '@nestjs/common';
 import { PatientService } from './patient.service';
 import { CreatePatientDto } from './dto/create-patient-dto';
@@ -20,18 +20,17 @@ export class PatientController {
   @ApiBody({ type: CreatePatientDto })
   @UseGuards(AppAuthGuard)
   @Post()
-  async createPatient(@Request() req, @Body() patientData: CreatePatientDto) {
+  async createPatient(@Body() patientData: CreatePatientDto) {
     return this.patientService.createPatient(patientData);
   }
 
   @UseGuards(AppAuthGuard)
   @Get('search')
   async searchPatients(
-    @Request() req,
+    @Req() req,
     @Query('id') id: string,
     @Query('name') name: string,
   ): Promise<Patient[]> {
-    console.log(req.user);
     return this.patientService.searchPatients(
       req.user.firebaseUserUID,
       id,
