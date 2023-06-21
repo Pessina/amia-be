@@ -13,7 +13,7 @@ export class DoctorController {
   @Post()
   @ApiBody({ type: CreateDoctorDto })
   createDoctor(
-    @Req() req,
+    @Req() req: any,
     @Body() createDoctorDto: CreateDoctorDto,
   ): Promise<Doctor> {
     return this.doctorService.createDoctor({

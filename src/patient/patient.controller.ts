@@ -20,14 +20,14 @@ export class PatientController {
   @ApiBody({ type: CreatePatientDto })
   @UseGuards(AppAuthGuard)
   @Post()
-  async createPatient(@Req() req, @Body() patientData: CreatePatientDto) {
+  async createPatient(@Req() req: any, @Body() patientData: CreatePatientDto) {
     return this.patientService.createPatient(req.user.id, patientData);
   }
 
   @UseGuards(AppAuthGuard)
   @Get('search')
   async searchPatients(
-    @Req() req,
+    @Req() req: any,
     @Query('id') id: string,
     @Query('name') name: string,
   ): Promise<Patient[]> {
