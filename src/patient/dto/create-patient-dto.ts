@@ -11,5 +11,5 @@ export class CreatePatientDto {
 
   @IsInt()
   @IsNotEmpty()
-  doctorId: number;
+  doctorId: string;
 }

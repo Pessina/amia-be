@@ -14,15 +14,22 @@ export class PatientService {
         name: data.name,
         Doctor: {
           connect: {
-            id: data.doctorId,
+            firebaseUserUID: data.doctorId,
           },
         },
       },
     });
   }
 
-  async searchPatients(id?: string, name?: string): Promise<Patient[]> {
+  async searchPatients(
+    doctorId: string,
+    id?: string,
+    name?: string,
+  ): Promise<Patient[]> {
     const where: Prisma.PatientWhereInput = {};
+
+    where['doctorId'] = doctorId;
+
     if (id !== undefined) {
       where['assignedId'] = {
         contains: id,

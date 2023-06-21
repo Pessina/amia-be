@@ -21,16 +21,21 @@ export class PatientController {
   @UseGuards(AppAuthGuard)
   @Post()
   async createPatient(@Request() req, @Body() patientData: CreatePatientDto) {
-    console.log(req.user);
     return this.patientService.createPatient(patientData);
   }
 
   @UseGuards(AppAuthGuard)
   @Get('search')
   async searchPatients(
+    @Request() req,
     @Query('id') id: string,
     @Query('name') name: string,
   ): Promise<Patient[]> {
-    return this.patientService.searchPatients(id, name);
+    console.log(req.user);
+    return this.patientService.searchPatients(
+      req.user.firebaseUserUID,
+      id,
+      name,
+    );
   }
 }

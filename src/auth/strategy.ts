@@ -2,6 +2,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { Strategy, ExtractJwt } from 'passport-firebase-jwt';
 import * as firebase from 'firebase-admin';
+import { PrismaService } from 'src/prisma.service';
 
 const firebase_params = {
   type: process.env.FIREBASE_PROJECT_TYPE,
@@ -19,7 +20,7 @@ const firebase_params = {
 @Injectable()
 export class AuthStrategy extends PassportStrategy(Strategy, 'firebase-auth') {
   private defaultApp: any;
-  constructor() {
+  constructor(private prisma: PrismaService) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
     });
@@ -40,6 +41,10 @@ export class AuthStrategy extends PassportStrategy(Strategy, 'firebase-auth') {
       throw new UnauthorizedException();
     }
 
-    return firebaseUser;
+    const user = await this.prisma.doctor.findUnique({
+      where: { firebaseUserUID: firebaseUser.user_id },
+    });
+
+    return user ? user : firebaseUser;
   }
 }
