@@ -11,11 +11,13 @@ import { PatientService } from './patient.service';
 import { CreatePatientDto } from './dto/create-patient-dto';
 import { Patient } from '@prisma/client';
 import { AppAuthGuard } from 'src/auth/guard';
+import { ApiBody } from '@nestjs/swagger';
 
 @Controller('patient')
 export class PatientController {
   constructor(private readonly patientService: PatientService) {}
 
+  @ApiBody({ type: CreatePatientDto })
   @UseGuards(AppAuthGuard)
   @Post()
   async createPatient(@Request() req, @Body() patientData: CreatePatientDto) {

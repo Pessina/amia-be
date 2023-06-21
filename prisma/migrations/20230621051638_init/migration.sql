@@ -1,7 +1,7 @@
 -- CreateTable
 CREATE TABLE `Doctor` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
-    `firebaseUserId` VARCHAR(191) NOT NULL,
+    `firebaseUserUID` VARCHAR(191) NOT NULL,
     `name` VARCHAR(255) NOT NULL,
     `email` VARCHAR(320) NOT NULL,
     `cpf` VARCHAR(11) NOT NULL,
@@ -10,7 +10,7 @@ CREATE TABLE `Doctor` (
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
 
-    UNIQUE INDEX `Doctor_firebaseUserId_key`(`firebaseUserId`),
+    UNIQUE INDEX `Doctor_firebaseUserUID_key`(`firebaseUserUID`),
     UNIQUE INDEX `Doctor_email_key`(`email`),
     UNIQUE INDEX `Doctor_cpf_key`(`cpf`),
     UNIQUE INDEX `Doctor_crm_key`(`crm`),
@@ -19,12 +19,14 @@ CREATE TABLE `Doctor` (
 
 -- CreateTable
 CREATE TABLE `Patient` (
-    `id` VARCHAR(191) NOT NULL,
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `assignedId` VARCHAR(191) NOT NULL,
     `name` VARCHAR(255) NOT NULL,
     `doctorId` INTEGER NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
 
+    UNIQUE INDEX `Patient_doctorId_assignedId_key`(`doctorId`, `assignedId`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -33,7 +35,7 @@ CREATE TABLE `Visit` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `visitDate` DATETIME(3) NOT NULL,
     `audioRecord` VARCHAR(2000) NOT NULL,
-    `patientId` VARCHAR(191) NOT NULL,
+    `patientId` INTEGER NOT NULL,
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;

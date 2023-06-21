@@ -1,9 +1,9 @@
-import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsString, Length } from 'class-validator';
 
 export class CreateDoctorDto {
   @IsString()
   @IsNotEmpty()
-  firebaseUserId: string;
+  firebaseUserUID: string;
 
   @IsString()
   @IsNotEmpty()
@@ -15,6 +15,7 @@ export class CreateDoctorDto {
 
   @IsString()
   @IsNotEmpty()
+  @Length(11, 11)
   cpf: string;
 
   @IsString()

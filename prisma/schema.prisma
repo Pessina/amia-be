@@ -9,7 +9,7 @@ datasource db {
 
 model Doctor {
   id              Int         @id @default(autoincrement())
-  firebaseUserId  String      @unique
+  firebaseUserUID String      @unique
   name            String      @db.VarChar(255)
   email           String      @unique @db.VarChar(320)   
   cpf             String      @unique @db.VarChar(11)    
@@ -21,20 +21,22 @@ model Doctor {
 }
 
 model Patient {
-  id        String       @id
-  name      String    @db.VarChar(255)
-  doctorId  Int
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  visits    Visit[]
-  Doctor    Doctor    @relation(fields: [doctorId], references: [id])
+  id          Int       @id @default(autoincrement())
+  assignedId  String    
+  name        String    @db.VarChar(255)
+  doctorId    Int
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  visits      Visit[]
+  Doctor      Doctor    @relation(fields: [doctorId], references: [id])
+
+  @@unique([doctorId, assignedId])
 }
 
-
 model Visit {
-  id            Int         @id @default(autoincrement())
-  visitDate     DateTime
-  audioRecord   String      @db.VarChar(2000)    
-  patientId     String
-  Patient       Patient     @relation(fields: [patientId], references: [id])
+  id          Int       @id @default(autoincrement())
+  visitDate   DateTime
+  audioRecord String    @db.VarChar(2000)    
+  patientId   Int
+  Patient     Patient   @relation(fields: [patientId], references: [id])
 }

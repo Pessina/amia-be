@@ -10,7 +10,7 @@ export class PatientService {
   async createPatient(data: CreatePatientDto) {
     return this.prisma.patient.create({
       data: {
-        id: data.id,
+        assignedId: data.assignedId,
         name: data.name,
         Doctor: {
           connect: {
@@ -24,7 +24,7 @@ export class PatientService {
   async searchPatients(id?: string, name?: string): Promise<Patient[]> {
     const where: Prisma.PatientWhereInput = {};
     if (id !== undefined) {
-      where['id'] = {
+      where['assignedId'] = {
         contains: id,
       };
     }
