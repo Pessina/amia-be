@@ -4,7 +4,7 @@ import * as dotenv from 'dotenv';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 dotenv.config();
 
-async function bootstrap() {
+async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);
 
   const options = new DocumentBuilder().build();
@@ -13,4 +13,5 @@ async function bootstrap() {
 
   await app.listen(3001);
 }
+
 bootstrap();

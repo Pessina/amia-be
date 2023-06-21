@@ -3,6 +3,8 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { Strategy, ExtractJwt } from 'passport-firebase-jwt';
 import * as firebase from 'firebase-admin';
 import { PrismaService } from 'src/prisma.service';
+import { DecodedIdToken } from 'firebase-admin/lib/auth/token-verifier';
+import { Doctor } from '@prisma/client';
 
 const firebase_params = {
   type: process.env.FIREBASE_PROJECT_TYPE,
@@ -29,7 +31,7 @@ export class AuthStrategy extends PassportStrategy(Strategy, 'firebase-auth') {
     });
   }
 
-  async validate(token: string) {
+  async validate(token: string): Promise<Doctor | DecodedIdToken> {
     const firebaseUser = await this.defaultApp
       .auth()
       .verifyIdToken(token, true)

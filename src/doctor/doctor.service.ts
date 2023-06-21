@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { CreateDoctorDto } from './dto/create-doctor.dto';
+import { Doctor } from '@prisma/client';
 
 @Injectable()
 export class DoctorService {
@@ -10,7 +11,7 @@ export class DoctorService {
     firebaseUserUID: string;
     email: string;
     data: CreateDoctorDto;
-  }) {
+  }): Promise<Doctor> {
     const doctor = await this.prisma.doctor.create({
       data: {
         ...data.data,

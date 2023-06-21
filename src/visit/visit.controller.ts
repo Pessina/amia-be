@@ -13,8 +13,9 @@ export class VisitController {
 
   @Post('process-audio')
   @UseInterceptors(FileInterceptor('audio'))
-  async processAudio(@UploadedFile() audio: Express.Multer.File) {
-    const result = await this.speechmatics.convertAudioToText(audio);
-    return result;
+  async processAudio(
+    @UploadedFile() audio: Express.Multer.File,
+  ): Promise<string> {
+    return await this.speechmatics.convertAudioToText(audio);
   }
 }

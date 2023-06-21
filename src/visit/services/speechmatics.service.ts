@@ -10,7 +10,7 @@ export class SpeechmaticsService {
     Authorization: `Bearer ${process.env.SPEECHMATICS_API_KEY}`,
   };
 
-  async convertAudioToText(file: Express.Multer.File) {
+  async convertAudioToText(file: Express.Multer.File): Promise<string> {
     const jobId = await this.createTranscriptionJob(file);
     const transcript = await this.getTranscript(jobId);
 
@@ -22,12 +22,16 @@ export class SpeechmaticsService {
     const formData = this.createFormData(stream, file.originalname);
 
     try {
-      const response = await axios.post(this.baseURL, formData, {
-        headers: {
-          ...formData.getHeaders(),
-          ...this.headers,
+      const response = await axios.post<{ id: string }>(
+        this.baseURL,
+        formData,
+        {
+          headers: {
+            ...formData.getHeaders(),
+            ...this.headers,
+          },
         },
-      });
+      );
 
       return response.data.id;
     } catch (error) {
@@ -54,13 +58,13 @@ export class SpeechmaticsService {
     return formData;
   }
 
-  private async getTranscript(jobId: number) {
+  private async getTranscript(jobId: string) {
     let isTranscriptReady = false;
     const transcriptUrl = `${this.baseURL}/${jobId}/transcript?format=txt`;
 
     while (!isTranscriptReady) {
       try {
-        const response = await axios.get(transcriptUrl, {
+        const response = await axios.get<string>(transcriptUrl, {
           headers: this.headers,
         });
 
@@ -74,6 +78,7 @@ export class SpeechmaticsService {
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private handleError(error: any): void {
     if (error.response) {
       console.log(error.response.data);
