@@ -3,6 +3,7 @@ import { Deepgram } from '@deepgram/sdk';
 import { TranscriptionSource } from '@deepgram/sdk/dist/types';
 import { Readable } from 'stream';
 
+// Will not be used on MVP as it's too expensive to start
 @Injectable()
 export class DeepgramService {
   private deepgram = new Deepgram(process.env.DEEPGRAM_API_KEY);

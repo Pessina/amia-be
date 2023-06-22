@@ -1,11 +1,17 @@
 import { Module } from '@nestjs/common';
 import { VisitController } from './visit.controller';
-import { SpeechmaticsService } from './services/speechmatics.service';
-import { DeepgramService } from './services/deepgram.service';
-import { WhisperService } from './services/whisper.service';
+import { SpeechmaticsService } from '../services/stt/speechmatics.service';
+import { DeepgramService } from '../services/stt/deepgram.service';
+import { WhisperService } from '../services/stt/whisper.service';
+import { RevAiService } from '../services/stt/rev.ai';
 
 @Module({
   controllers: [VisitController],
-  providers: [SpeechmaticsService, DeepgramService, WhisperService],
+  providers: [
+    SpeechmaticsService,
+    DeepgramService,
+    WhisperService,
+    RevAiService,
+  ],
 })
 export class VisitModule {}
