@@ -1,9 +1,4 @@
-import {
-  Controller,
-  Post,
-  UploadedFile,
-  UseInterceptors,
-} from '@nestjs/common';
+import { Controller, Post, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { DeepgramService } from '../services/stt/deepgram.service';
 import { SpeechmaticsService } from '../services/stt/speechmatics.service';
@@ -16,14 +11,12 @@ export class VisitController {
     private speechmatics: SpeechmaticsService,
     private deepgram: DeepgramService,
     private whisper: WhisperService,
-    private revAi: RevAiService,
+    private revAi: RevAiService
   ) {}
 
   @Post('process-audio')
   @UseInterceptors(FileInterceptor('audio'))
-  async processAudio(
-    @UploadedFile() audio: Express.Multer.File,
-  ): Promise<string> {
-    return await this.revAi.convertAudioToText(audio);
+  async processAudio(@UploadedFile() audio: Express.Multer.File): Promise<string> {
+    return await this.whisper.convertAudioToText(audio);
   }
 }

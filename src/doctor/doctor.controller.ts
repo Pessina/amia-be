@@ -12,10 +12,7 @@ export class DoctorController {
   @UseGuards(AppAuthGuard)
   @Post()
   @ApiBody({ type: CreateDoctorDto })
-  createDoctor(
-    @Req() req: any,
-    @Body() createDoctorDto: CreateDoctorDto,
-  ): Promise<Doctor> {
+  createDoctor(@Req() req: any, @Body() createDoctorDto: CreateDoctorDto): Promise<Doctor> {
     return this.doctorService.createDoctor({
       firebaseUserUID: req.user.user_id,
       email: req.user.email,

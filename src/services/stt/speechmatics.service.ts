@@ -22,16 +22,12 @@ export class SpeechmaticsService {
     const formData = this.createFormData(stream, file.originalname);
 
     try {
-      const response = await axios.post<{ id: string }>(
-        this.baseURL,
-        formData,
-        {
-          headers: {
-            ...formData.getHeaders(),
-            ...this.headers,
-          },
+      const response = await axios.post<{ id: string }>(this.baseURL, formData, {
+        headers: {
+          ...formData.getHeaders(),
+          ...this.headers,
         },
-      );
+      });
 
       return response.data.id;
     } catch (error) {
@@ -52,7 +48,7 @@ export class SpeechmaticsService {
     formData.append('data_file', stream, filename);
     formData.append(
       'config',
-      '{"type": "transcription","transcription_config": { "operating_point":"enhanced", "language": "pt" }}',
+      '{"type": "transcription","transcription_config": { "operating_point":"enhanced", "language": "pt" }}'
     );
 
     return formData;
