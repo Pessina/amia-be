@@ -7,7 +7,8 @@ import { Patient, Prisma } from '@prisma/client';
 export class PatientService {
   constructor(private prisma: PrismaService) {}
 
-  async createPatient(doctorId: number, data: CreatePatientDto) {
+  async createPatient(doctorId: number, data: CreatePatientDto): Promise<Patient> {
+    console.log(data);
     return this.prisma.patient.create({
       data: {
         assignedId: data.assignedId,
@@ -21,25 +22,19 @@ export class PatientService {
     });
   }
 
-  async searchPatients(
-    doctorId: number,
-    id?: string,
-    name?: string,
-  ): Promise<Patient[]> {
-    const where: Prisma.PatientWhereInput = {};
+  async searchPatients(doctorId: number, id?: string, name?: string): Promise<Patient[]> {
+    const where: Prisma.PatientWhereInput = {
+      AND: [
+        { doctorId: doctorId },
+        {
+          OR: [
+            { assignedId: id ? { contains: id } : undefined },
+            { name: name ? { contains: name } : undefined },
+          ],
+        },
+      ],
+    };
 
-    where['doctorId'] = doctorId;
-
-    if (id !== undefined) {
-      where['assignedId'] = {
-        contains: id,
-      };
-    }
-    if (name) {
-      where['name'] = {
-        contains: name,
-      };
-    }
     return this.prisma.patient.findMany({ where });
   }
 }
