@@ -20,8 +20,6 @@ export class WhisperService {
         },
       });
 
-      console.log(response.data);
-
       return response.data;
     } catch (error) {
       this.handleError(error);
@@ -38,9 +36,9 @@ export class WhisperService {
 
   private handleError(error: AxiosError): void {
     if (error.response) {
-      console.log(error.response.data);
+      console.error(error.response.data);
     } else {
-      console.log('Error', error.message);
+      console.error('Error', error.message);
     }
   }
 }

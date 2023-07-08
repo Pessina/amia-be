@@ -8,7 +8,6 @@ export class PatientService {
   constructor(private prisma: PrismaService) {}
 
   async createPatient(doctorId: number, data: CreatePatientDto): Promise<Patient> {
-    console.log(data);
     return this.prisma.patient.create({
       data: {
         assignedId: data.assignedId,
@@ -22,13 +21,13 @@ export class PatientService {
     });
   }
 
-  async searchPatients(doctorId: number, id?: string, name?: string): Promise<Patient[]> {
+  async searchPatients(doctorId: number, assignedId?: string, name?: string): Promise<Patient[]> {
     const where: Prisma.PatientWhereInput = {
       AND: [
         { doctorId: doctorId },
         {
           OR: [
-            { assignedId: id ? { contains: id } : undefined },
+            { assignedId: assignedId ? { contains: assignedId } : undefined },
             { name: name ? { contains: name } : undefined },
           ],
         },
@@ -36,5 +35,14 @@ export class PatientService {
     };
 
     return this.prisma.patient.findMany({ where });
+  }
+
+  async getPatientById(patientId: number): Promise<Patient | null> {
+    console.log({ patientId });
+    return this.prisma.patient.findUnique({
+      where: {
+        id: patientId,
+      },
+    });
   }
 }

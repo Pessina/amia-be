@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Query, UseGuards, Req } from '@nestjs/common';
+import { Controller, Post, Body, Get, Query, UseGuards, Req, Param } from '@nestjs/common';
 import { PatientService } from './patient.service';
 import { CreatePatientDto } from './dto/create-patient-dto';
 import { Patient } from '@prisma/client';
@@ -20,9 +20,15 @@ export class PatientController {
   @Get('search')
   async searchPatients(
     @Req() req: any,
-    @Query('id') id: string,
+    @Query('assignedId') assignedId: string,
     @Query('name') name: string
   ): Promise<Patient[]> {
-    return this.patientService.searchPatients(req.user.id, id, name);
+    return this.patientService.searchPatients(req.user.id, assignedId, name);
+  }
+
+  @UseGuards(AppAuthGuard)
+  @Get(':patientId')
+  async getPatient(@Param('patientId') patientId: string): Promise<Patient | null> {
+    return this.patientService.getPatientById(parseInt(patientId));
   }
 }
