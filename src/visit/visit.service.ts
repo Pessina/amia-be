@@ -26,6 +26,6 @@ export class VisitService {
 
     this.email.sendEmail('sendGrid', 'fs.pessina@gmail.com', gptResponse);
 
-    return '';
+    return gptResponse;
   }
 }
