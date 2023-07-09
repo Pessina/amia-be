@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import axios, { AxiosResponse } from 'axios';
 
-interface Message {
+interface GPTMessage {
   role: string; // 'system', 'user', or 'assistant'
   content: string;
 }
@@ -27,7 +27,7 @@ type ChatCompletionResponse = {
 export class ChatGptService {
   private readonly base_url = 'https://api.openai.com/v1/chat/completions';
 
-  async createChatCompletion(model: string, messages: Array<Message>): Promise<string | null> {
+  async createChatCompletion(model: string, messages: GPTMessage[]): Promise<string | null> {
     const headers = {
       Authorization: `Bearer ${process.env.OPEAN_AI_API_KEY}`,
       'Content-Type': 'application/json',

@@ -1,7 +1,7 @@
 import { Controller, Post, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { VisitService } from './visit.service';
-import { ChatGptService } from 'src/services/llm/gpt.service';
+import { ChatGptService } from 'src/services/llm/models/gpt.service';
 
 @Controller('visit')
 export class VisitController {

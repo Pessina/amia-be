@@ -17,9 +17,7 @@ export class RevAiService {
     return transcript;
   }
 
-  private async createTranscriptionJob(
-    file: Express.Multer.File,
-  ): Promise<string> {
+  private async createTranscriptionJob(file: Express.Multer.File): Promise<string> {
     const filePath = resolve(file.originalname);
     await fs.writeFile(filePath, file.buffer);
 
