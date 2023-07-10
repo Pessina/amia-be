@@ -5,7 +5,8 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 dotenv.config();
 
 async function bootstrap(): Promise<void> {
-  const app = await NestFactory.create(AppModule);
+  // TODO: Remove CORS: true for security reasons
+  const app = await NestFactory.create(AppModule, { cors: true });
 
   const options = new DocumentBuilder().build();
   const document = SwaggerModule.createDocument(app, options);
