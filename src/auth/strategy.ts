@@ -26,7 +26,11 @@ export class AuthStrategy extends PassportStrategy(Strategy, 'firebase-auth') {
   private defaultApp: firebase.app.App;
 
   constructor(private prisma: PrismaService) {
-    console.log(process.env.FIREBASE_PRIVATE_KEY);
+    console.log('\n\n\n');
+    console.log('env', process.env.FIREBASE_PRIVATE_KEY);
+    console.log('\n\n\n');
+    console.log('parsed', firebase_params.privateKey);
+    console.log('\n\n\n');
 
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
