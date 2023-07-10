@@ -24,7 +24,10 @@ const firebase_params = {
 @Injectable()
 export class AuthStrategy extends PassportStrategy(Strategy, 'firebase-auth') {
   private defaultApp: firebase.app.App;
+
   constructor(private prisma: PrismaService) {
+    console.log(process.env.FIREBASE_PRIVATE_KEY);
+
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
     });
