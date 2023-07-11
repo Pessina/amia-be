@@ -22,24 +22,24 @@ export class PatientService {
   }
 
   async searchPatients(doctorId: number, assignedId?: string, name?: string): Promise<Patient[]> {
-    console.log('called');
+    if (!doctorId) {
+      return [];
+    }
+
     const where: Prisma.PatientWhereInput = {
-      doctorId: doctorId,
+      AND: {
+        doctorId: doctorId,
+        OR: {
+          assignedId: assignedId ? { contains: assignedId } : undefined,
+          name: name ? { contains: name } : undefined,
+        },
+      },
     };
-
-    if (assignedId) {
-      where['assignedId'] = { contains: assignedId };
-    }
-
-    if (name) {
-      where['name'] = { contains: name };
-    }
 
     return this.prisma.patient.findMany({ where });
   }
 
   async getPatientById(patientId: number): Promise<Patient | null> {
-    console.log({ patientId });
     return this.prisma.patient.findUnique({
       where: {
         id: patientId,
