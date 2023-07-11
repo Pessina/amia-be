@@ -1,9 +1,9 @@
-import { IsNotEmpty, IsString, Length } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsString, Length } from 'class-validator';
 
-export class CreateDoctorDto {
-  @IsString()
+export class BaseDoctorDto {
   @IsNotEmpty()
-  name: string;
+  @IsEmail()
+  email: string;
 
   @IsString()
   @IsNotEmpty()
@@ -13,6 +13,16 @@ export class CreateDoctorDto {
   @IsString()
   @IsNotEmpty()
   crm: string;
+}
+
+export class CreateDoctorDto extends BaseDoctorDto {
+  @IsNotEmpty()
+  @IsString()
+  firebaseUserUID: string;
+
+  @IsString()
+  @IsNotEmpty()
+  name: string;
 
   @IsString()
   @IsNotEmpty()

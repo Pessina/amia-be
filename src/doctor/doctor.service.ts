@@ -1,25 +1,34 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
-import { CreateDoctorDto } from './dto/create-doctor.dto';
+import { CreateDoctorDto, BaseDoctorDto } from './dto/create-doctor.dto';
 import { Doctor } from '@prisma/client';
 
 @Injectable()
 export class DoctorService {
   constructor(private prisma: PrismaService) {}
 
-  async createDoctor(data: {
-    firebaseUserUID: string;
-    email: string;
-    data: CreateDoctorDto;
-  }): Promise<Doctor> {
+  async createDoctor(doctorDto: CreateDoctorDto): Promise<Doctor> {
     const doctor = await this.prisma.doctor.create({
-      data: {
-        ...data.data,
-        email: data.email,
-        firebaseUserUID: data.firebaseUserUID,
-      },
+      data: doctorDto,
     });
 
     return doctor;
+  }
+
+  async existDoctor(doctorDto: BaseDoctorDto): Promise<boolean> {
+    const { email, crm, cpf } = doctorDto;
+    const doctorWithEmail = await this.prisma.doctor.findUnique({
+      where: { email },
+    });
+    const doctorWithCrm = await this.prisma.doctor.findUnique({
+      where: { crm },
+    });
+    const doctorWithCpf = await this.prisma.doctor.findUnique({
+      where: { cpf },
+    });
+    if (doctorWithEmail || doctorWithCrm || doctorWithCpf) {
+      return true;
+    }
+    return false;
   }
 }

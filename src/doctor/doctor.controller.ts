@@ -1,5 +1,5 @@
-import { Controller, Post, Body, UseGuards, Req } from '@nestjs/common';
-import { CreateDoctorDto } from './dto/create-doctor.dto';
+import { Controller, Post, Body, UseGuards } from '@nestjs/common';
+import { CreateDoctorDto, BaseDoctorDto } from './dto/create-doctor.dto';
 import { DoctorService } from './doctor.service';
 import { AppAuthGuard } from 'src/auth/guard';
 import { ApiBody } from '@nestjs/swagger';
@@ -12,11 +12,13 @@ export class DoctorController {
   @UseGuards(AppAuthGuard)
   @Post()
   @ApiBody({ type: CreateDoctorDto })
-  createDoctor(@Req() req: any, @Body() createDoctorDto: CreateDoctorDto): Promise<Doctor> {
-    return this.doctorService.createDoctor({
-      firebaseUserUID: req.user.user_id,
-      email: req.user.email,
-      data: createDoctorDto,
-    });
+  createDoctor(@Body() doctorDto: CreateDoctorDto): Promise<Doctor> {
+    return this.doctorService.createDoctor(doctorDto);
+  }
+
+  @Post('exist')
+  @ApiBody({ type: BaseDoctorDto })
+  async existDoctor(@Body() doctorDto: BaseDoctorDto): Promise<boolean> {
+    return this.doctorService.existDoctor(doctorDto);
   }
 }
