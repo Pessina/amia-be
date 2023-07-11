@@ -22,17 +22,18 @@ export class PatientService {
   }
 
   async searchPatients(doctorId: number, assignedId?: string, name?: string): Promise<Patient[]> {
+    console.log('called');
     const where: Prisma.PatientWhereInput = {
-      AND: [
-        { doctorId: doctorId },
-        {
-          OR: [
-            { assignedId: assignedId ? { contains: assignedId } : undefined },
-            { name: name ? { contains: name } : undefined },
-          ],
-        },
-      ],
+      doctorId: doctorId,
     };
+
+    if (assignedId) {
+      where['assignedId'] = { contains: assignedId };
+    }
+
+    if (name) {
+      where['name'] = { contains: name };
+    }
 
     return this.prisma.patient.findMany({ where });
   }
