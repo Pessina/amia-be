@@ -26,15 +26,20 @@ export class PatientService {
       return [];
     }
 
-    const where: Prisma.PatientWhereInput = {
-      AND: {
-        doctorId: doctorId,
-        OR: {
-          assignedId: assignedId ? { contains: assignedId } : undefined,
-          name: name ? { contains: name } : undefined,
-        },
-      },
-    };
+    const where: Prisma.PatientWhereInput = { doctorId: doctorId };
+
+    const orConditions = [];
+    if (assignedId) {
+      orConditions.push({ assignedId: { contains: assignedId } });
+    }
+
+    if (name) {
+      orConditions.push({ name: { contains: name } });
+    }
+
+    if (orConditions.length > 0) {
+      where['OR'] = orConditions;
+    }
 
     return this.prisma.patient.findMany({ where });
   }

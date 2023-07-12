@@ -31,7 +31,11 @@ export class SpeechmaticsService {
 
       return response.data.id;
     } catch (error) {
-      this.handleError(error);
+      if (error.response) {
+        console.log(error.response.data);
+      } else {
+        console.log('Error', error.message);
+      }
     }
   }
 
@@ -71,15 +75,6 @@ export class SpeechmaticsService {
       } catch (error) {
         await new Promise((resolve) => setTimeout(resolve, 5000));
       }
-    }
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private handleError(error: any): void {
-    if (error.response) {
-      console.log(error.response.data);
-    } else {
-      console.log('Error', error.message);
     }
   }
 }

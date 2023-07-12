@@ -12,8 +12,6 @@ export class RevAiService {
     const jobId = await this.createTranscriptionJob(file);
     const transcript = await this.getTranscript(jobId);
 
-    console.log(transcript);
-
     return transcript;
   }
 
@@ -28,11 +26,13 @@ export class RevAiService {
 
       await fs.unlink(filePath);
 
-      console.log(job.id);
-
       return job.id;
     } catch (error) {
-      this.handleError(error);
+      if (error.response) {
+        console.log(error.response.data);
+      } else {
+        console.log('Error', error.message);
+      }
     }
   }
 
@@ -42,19 +42,9 @@ export class RevAiService {
     while (jobDetails.status !== 'transcribed') {
       await new Promise((resolve) => setTimeout(resolve, 5000));
 
-      console.log(jobDetails.status);
-
       jobDetails = await this.client.getJobDetails(jobId);
     }
 
     return await this.client.getTranscriptText(jobId);
-  }
-
-  private handleError(error: any): void {
-    if (error.response) {
-      console.log(error.response.data);
-    } else {
-      console.log('Error', error.message);
-    }
   }
 }

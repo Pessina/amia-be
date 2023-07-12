@@ -27,7 +27,11 @@ export class DeepgramService {
         return response.results.channels[0].alternatives[0].transcript;
       }
     } catch (error) {
-      this.handleError(error);
+      if (error.response) {
+        console.log(error.response.data);
+      } else {
+        console.log('Error', error.message);
+      }
     }
   }
 
@@ -37,13 +41,5 @@ export class DeepgramService {
     stream.push(null);
 
     return { buffer: file.buffer, mimetype: file.mimetype };
-  }
-
-  private handleError(error: any): void {
-    if (error.response) {
-      console.log(error.response.data);
-    } else {
-      console.log('Error', error.message);
-    }
   }
 }

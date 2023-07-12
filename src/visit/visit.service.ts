@@ -7,7 +7,7 @@ import { STTService } from 'src/services/stt/stt.service';
 export class VisitService {
   constructor(private stt: STTService, private llm: LLMService, private email: EmailService) {}
 
-  async processAudio(audio: Express.Multer.File): Promise<string> {
+  async processAudio(email: string, audio: Express.Multer.File): Promise<string> {
     const text = await this.stt.processAudio('whisper', audio);
 
     const buildPrompt = (text: string) => {
@@ -41,8 +41,17 @@ export class VisitService {
 
     const gptResponse = await this.llm.processText('gpt', messages);
 
-    this.email.sendEmail('sendGrid', 'fs.pessina@gmail.com', gptResponse);
+    const emailContent = `
+Original text:
+${text}
 
-    return gptResponse;
+ChatGPT response:
+${gptResponse}`;
+
+    console.log({ emailContent });
+
+    this.email.sendEmail('sendGrid', email, emailContent);
+
+    return emailContent;
   }
 }

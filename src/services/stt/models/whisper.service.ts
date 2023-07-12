@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import axios, { AxiosError } from 'axios';
+import axios from 'axios';
 import * as FormData from 'form-data';
 
 @Injectable()
@@ -22,7 +22,11 @@ export class WhisperService {
 
       return response.data.text;
     } catch (error) {
-      this.handleError(error);
+      if (error.response) {
+        console.error(error.response.data);
+      } else {
+        console.error('Error', error.message);
+      }
     }
   }
 
@@ -32,13 +36,5 @@ export class WhisperService {
     formData.append('model', 'whisper-1');
 
     return formData;
-  }
-
-  private handleError(error: AxiosError): void {
-    if (error.response) {
-      console.error(error.response.data);
-    } else {
-      console.error('Error', error.message);
-    }
   }
 }
