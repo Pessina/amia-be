@@ -12,7 +12,7 @@ export class PatientService {
     try {
       return await this.prisma.patient.create({
         data: {
-          assignedId: data.assignedId,
+          assignedId: data.assignedId || undefined,
           name: data.name,
           Doctor: {
             connect: {

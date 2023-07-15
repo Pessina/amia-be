@@ -10,6 +10,7 @@ async function bootstrap(): Promise<void> {
 
   app.useGlobalFilters(new AllExceptionsFilter());
 
+  // TODO: Finish configure swagger
   const options = new DocumentBuilder().build();
   const document = SwaggerModule.createDocument(app, options);
   SwaggerModule.setup('api', app, document);
