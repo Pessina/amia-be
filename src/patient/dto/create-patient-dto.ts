@@ -1,9 +1,9 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class CreatePatientDto {
   @IsString()
-  @IsNotEmpty()
-  assignedId: string;
+  @IsOptional()
+  assignedId?: string;
 
   @IsString()
   @IsNotEmpty()

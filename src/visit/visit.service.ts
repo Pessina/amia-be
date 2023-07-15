@@ -43,12 +43,14 @@ export class VisitService {
 
     const emailContent = `
 Original text:
+
 ${text}
 
-ChatGPT response:
-${gptResponse}`;
 
-    console.log({ emailContent });
+
+ChatGPT response:
+
+${gptResponse}`;
 
     this.email.sendEmail('sendGrid', email, emailContent);
 

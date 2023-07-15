@@ -22,7 +22,7 @@ model Doctor {
 
 model Patient {
   id          Int       @id @default(autoincrement())
-  assignedId  String    
+  assignedId  String?    
   name        String    @db.VarChar(255)
   doctorId    Int
   createdAt   DateTime  @default(now())
