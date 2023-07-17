@@ -52,7 +52,7 @@ ChatGPT response:
 
 ${gptResponse}`;
 
-    this.email.sendEmail('sendGrid', email, emailContent);
+    this.email.sendEmail('aws', email, emailContent);
 
     return emailContent;
   }

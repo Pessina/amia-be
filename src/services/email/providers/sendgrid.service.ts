@@ -10,10 +10,9 @@ export class SendGridService {
   public async sendEmail(to: string, subject: string, text: string): Promise<void> {
     const msg = {
       to: to,
-      from: 'fs.pessina@gmail.com',
+      from: 'no-reply@amia.com.br',
       subject: subject,
       text: text,
-      html: '<strong>and easy to do anywhere, even with Node.js</strong>',
     };
 
     try {

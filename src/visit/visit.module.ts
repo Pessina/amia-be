@@ -10,6 +10,7 @@ import { WhisperService } from 'src/services/stt/models/whisper.service';
 import { SpeechmaticsService } from 'src/services/stt/models/speechmatics.service';
 import { DeepgramService } from 'src/services/stt/models/deepgram.service';
 import { RevAiService } from 'src/services/stt/models/rev.ai';
+import { AWSSESService } from 'src/services/email/providers/awsses.service';
 
 @Module({
   controllers: [VisitController],
@@ -24,6 +25,7 @@ import { RevAiService } from 'src/services/stt/models/rev.ai';
     SpeechmaticsService,
     DeepgramService,
     RevAiService,
+    AWSSESService,
   ],
 })
 export class VisitModule {}
