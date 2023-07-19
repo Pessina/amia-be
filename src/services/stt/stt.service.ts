@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { WhisperService } from './models/whisper.service';
 import { SpeechmaticsService } from './models/speechmatics.service';
-import { DeepgramService } from './models/deepgram.service';
+
 import { RevAiService } from './models/rev.ai';
 
 type Models = 'whisper' | 'speechmatics' | 'deepgram' | 'rev';
@@ -11,7 +11,6 @@ export class STTService {
   constructor(
     private whisper: WhisperService,
     private speechmatics: SpeechmaticsService,
-    private deepgram: DeepgramService,
     private rev: RevAiService
   ) {}
 
@@ -23,9 +22,6 @@ export class STTService {
     }
     if (model === 'speechmatics') {
       resText = await this.speechmatics.convertAudioToText(audio);
-    }
-    if (model === 'deepgram') {
-      resText = await this.deepgram.convertAudioToText(audio);
     }
     if (model === 'rev') {
       resText = await this.rev.convertAudioToText(audio);
