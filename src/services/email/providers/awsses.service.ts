@@ -31,10 +31,6 @@ export class AWSSESService {
 
     const sendEmailCommand = new SendEmailCommand(params);
 
-    try {
-      await this.ses.send(sendEmailCommand);
-    } catch (e) {
-      console.error(e);
-    }
+    await this.ses.send(sendEmailCommand);
   }
 }

@@ -1,6 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 
 import { AWSSESService } from './providers/awsses.service';
+import { AppException } from 'src/filters/exceptions/AppException';
 
 type Models = 'sendGrid' | 'aws';
 
@@ -9,8 +10,20 @@ export class EmailService {
   constructor(private awsSES: AWSSESService) {}
 
   async sendEmail(model: Models, to: string, content: string): Promise<void> {
-    if (model === 'aws') {
-      this.awsSES.sendEmail(to, 'Patient Visit', content);
+    try {
+      if (model === 'aws') {
+        await this.awsSES.sendEmail(to, 'Patient Visit', content);
+      }
+    } catch (error) {
+      console.error(`Failed to send email: ${error}`);
+      throw new AppException(
+        {
+          code: 'EMAIL_SENDING_FAILED',
+          meta: { target: ['email'] },
+          message: 'Failed to send email',
+        },
+        HttpStatus.BAD_REQUEST
+      );
     }
   }
 }

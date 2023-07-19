@@ -7,6 +7,8 @@ export class WhisperService {
   private baseURL = 'https://api.openai.com/v1/audio/transcriptions';
   private headers = {
     Authorization: `Bearer ${process.env.OPEAN_AI_API_KEY}`,
+    language: 'pt',
+    temperature: 0,
   };
 
   async convertAudioToText(file: Express.Multer.File): Promise<string> {
