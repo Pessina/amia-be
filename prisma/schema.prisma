@@ -2,6 +2,7 @@ generator client {
   provider = "prisma-client-js"
 }
 
+// TODO: setup test DB and Firebase
 datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")

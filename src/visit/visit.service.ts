@@ -8,6 +8,8 @@ export class VisitService {
   constructor(private stt: STTService, private llm: LLMService, private email: EmailService) {}
 
   async processAudio(email: string, audio: Express.Multer.File): Promise<string> {
+    console.log(`Processing audio file of size: ${audio.size} bytes`);
+
     const text = await this.stt.processAudio('whisper', audio);
 
     const buildPrompt = (text: string) => {

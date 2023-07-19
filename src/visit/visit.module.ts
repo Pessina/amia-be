@@ -22,7 +22,6 @@ import { AWSSESService } from 'src/services/email/providers/awsses.service';
     ChatGptService,
     WhisperService,
     SpeechmaticsService,
-
     RevAiService,
     AWSSESService,
   ],
