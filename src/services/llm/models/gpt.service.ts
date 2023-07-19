@@ -27,7 +27,6 @@ export class ChatGptService {
     const headers = {
       Authorization: `Bearer ${process.env.OPEAN_AI_API_KEY}`,
       'Content-Type': 'application/json',
-      temperature: 0,
     };
 
     const data = {
@@ -38,6 +37,7 @@ export class ChatGptService {
           content: patientVisitSummaryPrompt(text),
         },
       ],
+      temperature: 0,
     };
 
     const response = await axios.post<ChatCompletionResponse>(this.base_url, data, { headers });

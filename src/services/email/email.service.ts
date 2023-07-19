@@ -9,10 +9,10 @@ type Models = 'sendGrid' | 'aws';
 export class EmailService {
   constructor(private awsSES: AWSSESService) {}
 
-  async sendEmail(model: Models, to: string, content: string): Promise<void> {
+  async sendEmail(model: Models, to: string, subject: string, content: string): Promise<void> {
     try {
       if (model === 'aws') {
-        await this.awsSES.sendEmail(to, 'Patient Visit', content);
+        await this.awsSES.sendEmail(to, subject, content);
       }
     } catch (error) {
       console.error(`Failed to send email: ${error}`);

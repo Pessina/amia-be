@@ -26,7 +26,7 @@ export class AWSSESService {
         },
         Subject: { Data: subject, Charset: 'UTF-8' },
       },
-      Source: 'no-reply@amia.com.br',
+      Source: 'Amia <amia-no-reply@amia.com.br>',
     };
 
     const sendEmailCommand = new SendEmailCommand(params);
