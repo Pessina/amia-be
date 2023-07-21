@@ -22,13 +22,13 @@ export class VisitController {
   async processVisitRecording(
     @Req() req: AuthRequest,
     @UploadedFile() audio: Express.Multer.File,
-    @Body('patientId') patientId: number,
+    @Body('patientId') patientId: string,
     @Body('requestTimestamp') requestTimestamp: string
   ): Promise<string> {
     return await this.visit.processVisitRecording(
       req.user.email,
       audio,
-      patientId,
+      parseInt(patientId),
       requestTimestamp
     );
   }

@@ -1,4 +1,4 @@
-import { ExceptionFilter, Catch, ArgumentsHost, HttpStatus } from '@nestjs/common';
+import { ExceptionFilter, Catch, ArgumentsHost, HttpStatus, HttpException } from '@nestjs/common';
 import { ErrorResponse } from './exceptions.types';
 import { AppException } from './AppException';
 import * as Sentry from '@sentry/node';
@@ -10,7 +10,10 @@ export class AllExceptionsFilter implements ExceptionFilter {
     const response = ctx.getResponse();
     const request = ctx.getRequest();
 
-    if (!(exception instanceof AppException)) {
+    if (
+      !(exception instanceof AppException) &&
+      !(exception instanceof HttpException && exception.getStatus() === HttpStatus.UNAUTHORIZED)
+    ) {
       Sentry.captureException(exception);
     }
 

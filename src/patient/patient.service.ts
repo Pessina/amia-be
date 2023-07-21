@@ -67,6 +67,10 @@ export class PatientService {
       },
     });
 
+    if (!patient) {
+      throw new Error(`Patient with id ${patientId} not found.`);
+    }
+
     return patient;
   }
 }
