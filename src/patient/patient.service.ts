@@ -27,9 +27,9 @@ export class PatientService {
           {
             code: 'PATIENT_ASSIGNED_ID_DUPLICATE',
             meta: { target: ['assignedId'] },
-            message: 'The assigned ID is already in use',
+            status: HttpStatus.BAD_REQUEST,
           },
-          HttpStatus.BAD_REQUEST
+          error
         );
       }
 
@@ -60,11 +60,13 @@ export class PatientService {
     return this.prisma.patient.findMany({ where });
   }
 
-  async getPatientById(patientId: number): Promise<Patient | null> {
-    return this.prisma.patient.findUnique({
+  async getPatientById(patientId: number): Promise<Patient> {
+    const patient = await this.prisma.patient.findUnique({
       where: {
         id: patientId,
       },
     });
+
+    return patient;
   }
 }

@@ -9,22 +9,27 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { VisitService } from './visit.service';
-import { ChatGptService } from 'src/services/llm/models/gpt.service';
 import { AppAuthGuard } from 'src/auth/guard';
+import { AuthRequest } from 'src/types/AuthRequest';
 
 @Controller('visit')
 export class VisitController {
-  constructor(private visit: VisitService, private gpt: ChatGptService) {}
+  constructor(private visit: VisitService) {}
 
   @UseGuards(AppAuthGuard)
-  @Post('process-audio')
+  @Post('process-visit-recording')
   @UseInterceptors(FileInterceptor('audio'))
-  async processAudio(
-    @Req() req: any,
+  async processVisitRecording(
+    @Req() req: AuthRequest,
     @UploadedFile() audio: Express.Multer.File,
-    @Body('patientName') patientName: string,
+    @Body('patientId') patientId: number,
     @Body('requestTimestamp') requestTimestamp: string
   ): Promise<string> {
-    return await this.visit.processAudio(req.user.email, audio, patientName, requestTimestamp);
+    return await this.visit.processVisitRecording(
+      req.user.email,
+      audio,
+      patientId,
+      requestTimestamp
+    );
   }
 }

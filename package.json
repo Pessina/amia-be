@@ -19,7 +19,8 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "prisma:migrate": "npx prisma migrate dev --name $npm_config_name && npx prisma generate",
-    "deploy": "npm install && npm run build && npx prisma migrate deploy && npm run start:prod"
+    "deploy": "npm install && npm run build && sentry:sourcemaps && npx prisma migrate deploy && npm run start:prod",
+    "sentry:sourcemaps": "sentry-cli sourcemaps inject --org amia --project node ./dist && sentry-cli sourcemaps upload --org amia --project node ./dist"
   },
   "dependencies": {
     "@aws-sdk/client-ses": "^3.370.0",
@@ -29,6 +30,7 @@
     "@nestjs/platform-express": "^10.0.0",
     "@nestjs/swagger": "^7.0.2",
     "@prisma/client": "^4.15.0",
+    "@sentry/node": "^7.59.3",
     "axios": "^1.4.0",
     "class-validator": "^0.14.0",
     "date-fns": "^2.30.0",

@@ -11,8 +11,11 @@ import { SpeechmaticsService } from 'src/services/stt/models/speechmatics.servic
 
 import { RevAiService } from 'src/services/stt/models/rev.ai';
 import { AWSSESService } from 'src/services/email/providers/awsses.service';
+import { PatientModule } from 'src/patient/patient.module';
+import { PatientService } from 'src/patient/patient.service';
 
 @Module({
+  imports: [PatientModule],
   controllers: [VisitController],
   providers: [
     VisitService,

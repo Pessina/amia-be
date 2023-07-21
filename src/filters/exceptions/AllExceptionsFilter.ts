@@ -1,6 +1,7 @@
 import { ExceptionFilter, Catch, ArgumentsHost, HttpStatus } from '@nestjs/common';
 import { ErrorResponse } from './exceptions.types';
 import { AppException } from './AppException';
+import * as Sentry from '@sentry/node';
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
@@ -9,6 +10,10 @@ export class AllExceptionsFilter implements ExceptionFilter {
     const response = ctx.getResponse();
     const request = ctx.getRequest();
 
+    if (!(exception instanceof AppException)) {
+      Sentry.captureException(exception);
+    }
+
     const status =
       exception instanceof AppException ? exception.getStatus() : HttpStatus.INTERNAL_SERVER_ERROR;
 
@@ -16,10 +21,10 @@ export class AllExceptionsFilter implements ExceptionFilter {
     let code = 'INTERNAL_ERROR';
     let meta = {};
 
-    if (exception.response) {
-      message = exception.response.message || exception.message;
-      code = exception.response.code || 'INTERNAL_ERROR';
-      meta = exception.response.meta || {};
+    if (exception) {
+      message = exception.message || exception.message;
+      code = exception.code || 'INTERNAL_ERROR';
+      meta = exception.meta || {};
     }
 
     const errorResponse: ErrorResponse = {
