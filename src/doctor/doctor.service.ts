@@ -17,6 +17,7 @@ export class DoctorService {
 
   async existDoctor(doctorDto: BaseDoctorDto): Promise<boolean> {
     const { email, crm, cpf } = doctorDto;
+
     const doctorWithEmail = await this.prisma.doctor.findUnique({
       where: { email },
     });
@@ -26,9 +27,11 @@ export class DoctorService {
     const doctorWithCpf = await this.prisma.doctor.findUnique({
       where: { cpf },
     });
+
     if (doctorWithEmail || doctorWithCrm || doctorWithCpf) {
       return true;
     }
+
     return false;
   }
 }

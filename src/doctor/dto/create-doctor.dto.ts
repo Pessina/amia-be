@@ -1,4 +1,4 @@
-import { IsEmail, IsNotEmpty, IsString, Length } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsString, Length, Matches } from 'class-validator';
 
 export class BaseDoctorDto {
   @IsNotEmpty()
@@ -8,6 +8,7 @@ export class BaseDoctorDto {
   @IsString()
   @IsNotEmpty()
   @Length(11, 11)
+  @Matches(/^[0-9]+$/)
   cpf: string;
 
   @IsString()
