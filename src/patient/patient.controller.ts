@@ -4,6 +4,7 @@ import { CreatePatientDto } from './dto/create-patient-dto';
 import { Patient } from '@prisma/client';
 import { AppAuthGuard } from 'src/auth/guard';
 import { ApiBody } from '@nestjs/swagger';
+import { AuthRequest } from 'src/types/AuthRequest';
 
 @Controller('patient')
 export class PatientController {
@@ -12,14 +13,17 @@ export class PatientController {
   @ApiBody({ type: CreatePatientDto })
   @UseGuards(AppAuthGuard)
   @Post()
-  async createPatient(@Req() req: any, @Body() patientData: CreatePatientDto): Promise<Patient> {
+  async createPatient(
+    @Req() req: AuthRequest,
+    @Body() patientData: CreatePatientDto
+  ): Promise<Patient> {
     return this.patientService.createPatient(req.user.id, patientData);
   }
 
   @UseGuards(AppAuthGuard)
   @Get('search')
   async searchPatients(
-    @Req() req: any,
+    @Req() req: AuthRequest,
     @Query('assignedId') assignedId: string,
     @Query('name') name: string
   ): Promise<Patient[]> {

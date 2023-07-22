@@ -35,12 +35,7 @@ export class AuthStrategy extends PassportStrategy(Strategy, 'firebase-auth') {
   }
 
   async validate(token: string): Promise<Doctor | DecodedIdToken> {
-    const firebaseUser = await this.defaultApp
-      .auth()
-      .verifyIdToken(token, true)
-      .catch(() => {
-        throw new UnauthorizedException();
-      });
+    const firebaseUser = await this.defaultApp.auth().verifyIdToken(token, true);
 
     if (!firebaseUser) {
       throw new UnauthorizedException();
