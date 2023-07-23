@@ -32,4 +32,9 @@ export class VisitController {
       requestTimestamp
     );
   }
+
+  @Post('process-transcription')
+  async processTranscription(@Body('transcription') transcription: string): Promise<string> {
+    return await this.visit.processTranscription(transcription);
+  }
 }

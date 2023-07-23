@@ -1,17 +1,26 @@
 import { Injectable } from '@nestjs/common';
-import { ChatGptService } from './models/gpt.service';
+import { ChatCompletionResponse, ChatGptService, GPTSchema } from './models/gpt.service';
 
 type Models = 'gpt';
+
+export type LLMMessage = {
+  role: 'user' | 'system' | 'assistant' | 'function';
+  content: string;
+};
 
 @Injectable()
 export class LLMService {
   constructor(private gpt: ChatGptService) {}
 
-  async processText(model: Models, text: string): Promise<string> {
-    let resText = '';
+  async processText(
+    model: Models,
+    messages: LLMMessage[],
+    responseSchema?: GPTSchema
+  ): Promise<ChatCompletionResponse> {
+    let resText: ChatCompletionResponse;
 
     if (model === 'gpt') {
-      resText = await this.gpt.createChatCompletion('gpt-3.5-turbo', text);
+      resText = await this.gpt.createChatCompletion('gpt-3.5-turbo-16k', messages, responseSchema);
     }
 
     return resText;
