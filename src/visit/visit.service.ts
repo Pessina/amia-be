@@ -27,8 +27,6 @@ export class VisitService {
     patientId: number,
     requestTimestamp: string
   ): Promise<string> {
-    console.log(`Processing audio file of size: ${audio.size} bytes`);
-
     const text = await this.stt.processAudio('whisper', audio);
     const gptResponse = await this.processTranscription(text);
     const patient = await this.patientService.getPatientById(patientId);
@@ -76,8 +74,6 @@ export class VisitService {
     ];
 
     const extractTopics = await this.llm.processText('gpt', messages);
-
-    console.log(extractTopics.choices[0].message.content);
 
     messages.push({
       role: 'user',

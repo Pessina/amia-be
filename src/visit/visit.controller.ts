@@ -33,6 +33,7 @@ export class VisitController {
     );
   }
 
+  @UseGuards(AppAuthGuard)
   @Post('process-transcription')
   async processTranscription(@Body('transcription') transcription: string): Promise<string> {
     return await this.visit.processTranscription(transcription);
