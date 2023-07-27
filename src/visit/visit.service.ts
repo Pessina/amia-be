@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { format } from 'date-fns';
 import { PatientService } from 'src/patient/patient.service';
 import { EmailService } from 'src/services/email/email.service';
 import { LLMMessage, LLMService } from 'src/services/llm/llm.service';
@@ -13,7 +12,10 @@ import {
 } from 'src/services/llm/prompts/patientVisitPrompts';
 import { STTService } from 'src/services/stt/stt.service';
 import { ProcessVisitRecordingResponse } from './visit.types';
-import { medicalRecordsEmailTemplate } from 'src/services/email/templates/medicalRecords';
+import {
+  createPatientVisitEmailBody,
+  createPatientVisitEmailSubject,
+} from 'src/services/email/templates/patientVisit.template';
 
 @Injectable()
 export class VisitService {
@@ -31,17 +33,17 @@ export class VisitService {
     requestTimestamp: string
   ): Promise<ProcessVisitRecordingResponse> {
     const text = await this.stt.processAudio('whisper', audio);
-    const medicalRecords = await this.processTranscription(text);
+    const medicalRecord = await this.processTranscription(text);
     const patient = await this.patientService.getPatientById(patientId);
 
     await this.email.sendEmail(
       'aws',
       email,
-      `${patient.name} - [${format(new Date(requestTimestamp), 'dd/MM/yyyy - hh:mm')}]`,
-      medicalRecordsEmailTemplate({ transcription: text, medicalRecords: medicalRecords })
+      createPatientVisitEmailSubject(patient.name, requestTimestamp),
+      createPatientVisitEmailBody({ transcription: text, medicalRecord: medicalRecord })
     );
 
-    return { transcription: text, medicalRecords: medicalRecords };
+    return { transcription: text, medicalRecord: medicalRecord };
   }
 
   async processTranscription(transcription: string): Promise<PatientVisitSummary> {

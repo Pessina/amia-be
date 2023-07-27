@@ -2,5 +2,5 @@ import { PatientVisitSummary } from 'src/services/llm/prompts/patientVisitPrompt
 
 export type ProcessVisitRecordingResponse = {
   transcription: string;
-  medicalRecords: PatientVisitSummary;
+  medicalRecord: PatientVisitSummary;
 };
