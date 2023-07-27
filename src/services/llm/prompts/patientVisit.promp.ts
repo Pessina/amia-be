@@ -1,8 +1,8 @@
 import { GPTSchema } from '../models/gpt.service';
 
-export const contextPrompt = `Você é assistente de um médico no Albert Einstein, São Paulo`;
+const context = `Você é assistente de um médico no Albert Einstein, São Paulo`;
 
-export const extractTopicsPrompt = (transcription: string): string => `
+const extractTopics = (transcription: string): string => `
   Dada a transcrição de uma consulta médica, liste:
   
   - Sintomas atuais, para cada sintoma informe: atribua uma nota de 0 a 5 de acordo com a preocupação do paciente (5 = muito preocupado), data relativa de início e piora
@@ -24,7 +24,7 @@ export const extractTopicsPrompt = (transcription: string): string => `
   Transcrição da consulta: """${transcription}"""
 `;
 
-export const createMedicalRecordPrompt = (extractTopics: string): string => `
+const createMedicalRecord = (extractTopics: string): string => `
   Sabendo que estas são as palavras chaves da trascrição: """${extractTopics}"""
 
   Escreva o prontuário médico do paciente organizado em 9 tópicos:
@@ -47,7 +47,7 @@ export const createMedicalRecordPrompt = (extractTopics: string): string => `
   - Escreva baseado apenas no que o paciente e médico falaram, não invente informações
 `;
 
-export const formatJSONPrompt = (medicalRecord: string): string => `
+const formatJSON = (medicalRecord: string): string => `
   Formate o prontuário médico em JSON: """${medicalRecord}"""
 
   O JSON deve ser neste formato: 
@@ -65,7 +65,7 @@ export const formatJSONPrompt = (medicalRecord: string): string => `
   A ordem dos tópicos no array deve ser a mesma dos tópicos no prontuário médico
 `;
 
-export const patientVisitSummarySchema: GPTSchema = {
+const schema: GPTSchema = {
   type: 'object',
   properties: {
     topics: { type: 'array', items: { title: 'topic title', content: 'topic contente' } },
@@ -74,4 +74,12 @@ export const patientVisitSummarySchema: GPTSchema = {
 
 export type PatientVisitSummary = {
   topics: { title: string; content: string }[];
+};
+
+export const patientVisitGPT = {
+  context,
+  extractTopics,
+  createMedicalRecord,
+  formatJSON,
+  schema,
 };

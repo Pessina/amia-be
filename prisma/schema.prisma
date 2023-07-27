@@ -37,7 +37,7 @@ model Patient {
 model Visit {
   id          Int       @id @default(autoincrement())
   visitDate   DateTime
-  audioRecord String    @db.VarChar(2000)    
+  audioRecord String?    @db.VarChar(2000)    
   patientId   Int
   Patient     Patient   @relation(fields: [patientId], references: [id])
 }

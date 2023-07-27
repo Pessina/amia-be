@@ -2,20 +2,15 @@ import { Injectable } from '@nestjs/common';
 import { PatientService } from 'src/patient/patient.service';
 import { EmailService } from 'src/services/email/email.service';
 import { LLMMessage, LLMService } from 'src/services/llm/llm.service';
-import {
-  PatientVisitSummary,
-  contextPrompt,
-  createMedicalRecordPrompt,
-  extractTopicsPrompt,
-  formatJSONPrompt,
-  patientVisitSummarySchema,
-} from 'src/services/llm/prompts/patientVisitPrompts';
+import { PatientVisitSummary, patientVisitGPT } from 'src/services/llm/prompts/patientVisit.promp';
 import { STTService } from 'src/services/stt/stt.service';
 import { ProcessVisitRecordingResponse } from './visit.types';
 import {
   createPatientVisitEmailBody,
   createPatientVisitEmailSubject,
 } from 'src/services/email/templates/patientVisit.template';
+import { PrismaService } from 'src/prisma.service';
+import { Visit } from '@prisma/client';
 
 @Injectable()
 export class VisitService {
@@ -23,8 +18,26 @@ export class VisitService {
     private stt: STTService,
     private llm: LLMService,
     private email: EmailService,
-    private patientService: PatientService
+    private patientService: PatientService,
+    private prisma: PrismaService
   ) {}
+
+  async createVisit(patientId: number, requestTimestamp: Date): Promise<Visit> {
+    return this.prisma.visit.create({
+      data: {
+        patientId: patientId,
+        visitDate: requestTimestamp,
+      },
+    });
+  }
+
+  async getAllVisitsForPatient(patientId: number): Promise<Visit[]> {
+    return await this.prisma.visit.findMany({
+      where: {
+        patientId: patientId,
+      },
+    });
+  }
 
   async processVisitRecording(
     email: string,
@@ -32,29 +45,29 @@ export class VisitService {
     patientId: number,
     requestTimestamp: string
   ): Promise<ProcessVisitRecordingResponse> {
-    const text = await this.stt.processAudio('whisper', audio);
-    const medicalRecord = await this.processTranscription(text);
+    const transcription = await this.stt.processAudio('whisper', audio);
+    const medicalRecord = await this.processTranscription(transcription);
     const patient = await this.patientService.getPatientById(patientId);
 
     await this.email.sendEmail(
       'aws',
       email,
       createPatientVisitEmailSubject(patient.name, requestTimestamp),
-      createPatientVisitEmailBody({ transcription: text, medicalRecord: medicalRecord })
+      createPatientVisitEmailBody({ transcription: transcription, medicalRecord: medicalRecord })
     );
 
-    return { transcription: text, medicalRecord: medicalRecord };
+    return { transcription: transcription, medicalRecord: medicalRecord };
   }
 
   async processTranscription(transcription: string): Promise<PatientVisitSummary> {
     let messages: LLMMessage[] = [
       {
         role: 'system',
-        content: contextPrompt,
+        content: patientVisitGPT.context,
       },
       {
         role: 'user',
-        content: extractTopicsPrompt(transcription),
+        content: patientVisitGPT.extractTopics(transcription),
       },
     ];
 
@@ -62,7 +75,7 @@ export class VisitService {
 
     messages.push({
       role: 'user',
-      content: createMedicalRecordPrompt(extractTopics.choices[0].message.content),
+      content: patientVisitGPT.createMedicalRecord(extractTopics.choices[0].message.content),
     });
 
     const medicalRecordNonFormatted = await this.llm.processText('gpt', messages);
@@ -70,14 +83,14 @@ export class VisitService {
     messages = [
       {
         role: 'user',
-        content: formatJSONPrompt(medicalRecordNonFormatted.choices[0].message.content),
+        content: patientVisitGPT.formatJSON(medicalRecordNonFormatted.choices[0].message.content),
       },
     ];
 
     const medicalRecordFormatted = await this.llm.processText(
       'gpt',
       messages,
-      patientVisitSummarySchema
+      patientVisitGPT.schema
     );
 
     return JSON.parse(
