@@ -22,7 +22,7 @@ export class AWSSESService {
       },
       Message: {
         Body: {
-          Text: { Data: text, Charset: 'UTF-8' },
+          Html: { Data: text, Charset: 'UTF-8' },
         },
         Subject: { Data: subject, Charset: 'UTF-8' },
       },

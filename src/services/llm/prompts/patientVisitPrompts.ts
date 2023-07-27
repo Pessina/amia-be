@@ -47,7 +47,7 @@ export const createMedicalRecordPrompt = (extractTopics: string): string => `
   - Escreva baseado apenas no que o paciente e médico falaram, não invente informações
 `;
 
-export const formatJSON = (medicalRecord: string): string => `
+export const formatJSONPrompt = (medicalRecord: string): string => `
   Formate o prontuário médico em JSON: """${medicalRecord}"""
 
   O JSON deve ser neste formato: 
@@ -70,4 +70,8 @@ export const patientVisitSummarySchema: GPTSchema = {
   properties: {
     topics: { type: 'array', items: { title: 'topic title', content: 'topic contente' } },
   },
+};
+
+export type PatientVisitSummary = {
+  topics: { title: string; content: string }[];
 };

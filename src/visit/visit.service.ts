@@ -4,13 +4,16 @@ import { PatientService } from 'src/patient/patient.service';
 import { EmailService } from 'src/services/email/email.service';
 import { LLMMessage, LLMService } from 'src/services/llm/llm.service';
 import {
+  PatientVisitSummary,
   contextPrompt,
   createMedicalRecordPrompt,
   extractTopicsPrompt,
-  formatJSON,
+  formatJSONPrompt,
   patientVisitSummarySchema,
 } from 'src/services/llm/prompts/patientVisitPrompts';
 import { STTService } from 'src/services/stt/stt.service';
+import { ProcessVisitRecordingResponse } from './visit.types';
+import { medicalRecordsEmailTemplate } from 'src/services/email/templates/medicalRecords';
 
 @Injectable()
 export class VisitService {
@@ -26,42 +29,22 @@ export class VisitService {
     audio: Express.Multer.File,
     patientId: number,
     requestTimestamp: string
-  ): Promise<string> {
+  ): Promise<ProcessVisitRecordingResponse> {
     const text = await this.stt.processAudio('whisper', audio);
-    const gptResponse = await this.processTranscription(text);
+    const medicalRecords = await this.processTranscription(text);
     const patient = await this.patientService.getPatientById(patientId);
 
     await this.email.sendEmail(
       'aws',
       email,
       `${patient.name} - [${format(new Date(requestTimestamp), 'dd/MM/yyyy - hh:mm')}]`,
-      `${text}\n\n\n\n${gptResponse}`
+      medicalRecordsEmailTemplate({ transcription: text, medicalRecords: medicalRecords })
     );
 
-    return `${text}\n\n\n\n${gptResponse}`;
+    return { transcription: text, medicalRecords: medicalRecords };
   }
 
-  async processTranscription(transcription: string): Promise<string> {
-    /*
-      Optimizations:
-
-        1 - Set up persona (doctor assistant on top tier hospital), goal of response (patient medical records)
-        2 - Extract main topics (medicines, symptoms, exams, complaints, etc.)
-        3 - Organize it on the output topics for medical record
-        4 - Transform in JSON
-
-      Learned: 
-
-        - Topic extraction it's very consistent
-        - Use main topic to create main response, make it more consistent
-        - Split the response in specific topics make it's response more accurate and less prone to hallucination
-
-      Try: 
-
-         - Provide medical record examples
-         - On each topic provide examples to guide GPT
-    */
-
+  async processTranscription(transcription: string): Promise<PatientVisitSummary> {
     let messages: LLMMessage[] = [
       {
         role: 'system',
@@ -85,7 +68,7 @@ export class VisitService {
     messages = [
       {
         role: 'user',
-        content: formatJSON(medicalRecordNonFormatted.choices[0].message.content),
+        content: formatJSONPrompt(medicalRecordNonFormatted.choices[0].message.content),
       },
     ];
 
@@ -94,6 +77,9 @@ export class VisitService {
       messages,
       patientVisitSummarySchema
     );
-    return `${medicalRecordNonFormatted.choices[0].message.content}\n\n\n\n${medicalRecordFormatted.choices[0].message.function_call.arguments}`;
+
+    return JSON.parse(
+      medicalRecordFormatted.choices[0].message.function_call.arguments
+    ) as PatientVisitSummary;
   }
 }
