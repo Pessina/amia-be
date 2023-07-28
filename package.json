@@ -19,6 +19,7 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "prisma:migrate": "npx prisma migrate dev --name $npm_config_name && npx prisma generate",
+    "prisma:studio": "npx prisma studio",
     "deploy": "npm install && npm run build && npm run sentry:sourcemaps && npx prisma migrate deploy && npm run start:prod",
     "sentry:sourcemaps": "sentry-cli sourcemaps inject --org amia --project amia-be ./dist && sentry-cli sourcemaps upload --org amia --project amia-be ./dist"
   },
@@ -33,7 +34,7 @@
     "@sentry/node": "^7.59.3",
     "axios": "^1.4.0",
     "class-validator": "^0.14.0",
-    "date-fns": "^2.30.0",
+    "date-fns-tz": "^2.0.0",
     "dotenv": "^16.3.1",
     "firebase-admin": "^11.9.0",
     "form-data": "^4.0.0",

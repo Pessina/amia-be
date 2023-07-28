@@ -1,15 +1,35 @@
 import { Injectable } from '@nestjs/common';
 import axios from 'axios';
-import { patientVisitSummaryPrompt } from '../prompts/patientVisitSummary.prompt';
+import { LLMMessage } from '../llm.service';
 
-type ChatCompletionResponse = {
+type StringObject =
+  | {
+      [key: string]: StringObject | Array<StringObject> | string;
+    }
+  | (StringObject | Array<StringObject> | string)[];
+
+export type GPTSchema = {
+  type: 'object';
+  properties: {
+    [key: string]: StringObject;
+  };
+};
+
+export type ChatCompletionResponse = {
   id: string;
   object: string;
   created: number;
   model: string;
   choices: Array<{
     index: number;
-    message: { role: string; content: string };
+    message: {
+      role: string;
+      content: string;
+      function_call: {
+        name: string;
+        arguments: string;
+      };
+    };
     finish_reason: string;
   }>;
   usage: {
@@ -23,7 +43,11 @@ type ChatCompletionResponse = {
 export class ChatGptService {
   private readonly base_url = 'https://api.openai.com/v1/chat/completions';
 
-  async createChatCompletion(model: string, text: string): Promise<string | null> {
+  async createChatCompletion(
+    model: string,
+    messages: LLMMessage[],
+    responseSchema?: GPTSchema
+  ): Promise<ChatCompletionResponse> {
     const headers = {
       Authorization: `Bearer ${process.env.OPEAN_AI_API_KEY}`,
       'Content-Type': 'application/json',
@@ -31,17 +55,13 @@ export class ChatGptService {
 
     const data = {
       model,
-      messages: [
-        {
-          role: 'system' as const,
-          content: patientVisitSummaryPrompt(text),
-        },
-      ],
       temperature: 0,
+      messages: messages,
+      ...(responseSchema ? { functions: [{ name: 'res', parameters: responseSchema }] } : {}),
     };
 
-    const response = await axios.post<ChatCompletionResponse>(this.base_url, data, { headers });
+    const res = await axios.post<ChatCompletionResponse>(this.base_url, data, { headers });
 
-    return response.data.choices[0].message.content;
+    return res.data;
   }
 }

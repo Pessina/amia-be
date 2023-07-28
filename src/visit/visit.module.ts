@@ -13,6 +13,7 @@ import { RevAiService } from 'src/services/stt/models/rev.ai';
 import { AWSSESService } from 'src/services/email/providers/awsses.service';
 import { PatientModule } from 'src/patient/patient.module';
 import { PatientService } from 'src/patient/patient.service';
+import { PrismaService } from 'src/prisma.service';
 
 @Module({
   imports: [PatientModule],
@@ -27,6 +28,7 @@ import { PatientService } from 'src/patient/patient.service';
     SpeechmaticsService,
     RevAiService,
     AWSSESService,
+    PrismaService,
   ],
 })
 export class VisitModule {}

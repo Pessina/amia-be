@@ -37,6 +37,12 @@ export class PatientService {
     }
   }
 
+  async deletePatient(patientId: number): Promise<void> {
+    await this.prisma.patient.delete({
+      where: { id: patientId },
+    });
+  }
+
   async searchPatients(doctorId: number, assignedId?: string, name?: string): Promise<Patient[]> {
     if (!doctorId) {
       return [];
