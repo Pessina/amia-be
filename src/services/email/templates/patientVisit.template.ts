@@ -1,8 +1,18 @@
-import { format } from 'date-fns';
+import { format, utcToZonedTime } from 'date-fns-tz';
 import { ProcessVisitRecordingResponse } from 'src/visit/visit.types';
 
-export const createPatientVisitEmailSubject = (name: string, requestTimestamp: string): string =>
-  `${name} - [${format(new Date(requestTimestamp), 'dd/MM/yyyy - hh:mm')}]`;
+export const createPatientVisitEmailSubject = (
+  name: string,
+  timestamp: string,
+  timezone: string
+): string => {
+  const timestampInUserTimezone = utcToZonedTime(timestamp, timezone);
+  const formattedTimestamp = format(timestampInUserTimezone, 'dd/MM/yyyy - HH:mm', {
+    timeZone: timezone,
+  });
+
+  return `${name} - [${formattedTimestamp}]`;
+};
 
 export const createPatientVisitEmailBody = (data: ProcessVisitRecordingResponse): string => {
   let topicsHtml = '';
