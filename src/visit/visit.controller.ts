@@ -26,7 +26,7 @@ export class VisitController {
   @Post('')
   async createVisit(
     @Body('patientId') patientId: string,
-    @Body('requestTimestamp') requestTimestamp: string
+    @Body('timestamp') requestTimestamp: string
   ): Promise<Visit> {
     return await this.visit.createVisit(parseInt(patientId), parseISO(requestTimestamp));
   }
@@ -44,13 +44,15 @@ export class VisitController {
     @Req() req: AuthRequest,
     @UploadedFile() audio: Express.Multer.File,
     @Body('patientId') patientId: string,
-    @Body('requestTimestamp') requestTimestamp: string
+    @Body('timestamp') timestamp: string,
+    @Body('timezone') timezone: string
   ): Promise<ProcessVisitRecordingResponse> {
     return await this.visit.processVisitRecording(
       req.user.email,
       audio,
       parseInt(patientId),
-      requestTimestamp
+      timestamp,
+      timezone
     );
   }
 
@@ -59,7 +61,7 @@ export class VisitController {
   @Post('process-transcription')
   async processTranscription(
     @Body('transcription') transcription: string
-  ): Promise<PatientVisitSummary> {
+  ): Promise<{ topics: PatientVisitSummary; extractTopics: string }> {
     return await this.visit.processTranscription(transcription);
   }
 }

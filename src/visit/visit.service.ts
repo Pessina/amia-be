@@ -43,23 +43,32 @@ export class VisitService {
     email: string,
     audio: Express.Multer.File,
     patientId: number,
-    requestTimestamp: string
+    timestamp: string,
+    timezone: string
   ): Promise<ProcessVisitRecordingResponse> {
     const transcription = await this.stt.processAudio('whisper', audio);
-    const medicalRecord = await this.processTranscription(transcription);
+    const { topics: medicalRecord, extractTopics } = await this.processTranscription(transcription);
     const patient = await this.patientService.getPatientById(patientId);
 
     await this.email.sendEmail(
       'aws',
       email,
-      createPatientVisitEmailSubject(patient.name, requestTimestamp),
-      createPatientVisitEmailBody({ transcription: transcription, medicalRecord: medicalRecord })
+      createPatientVisitEmailSubject(patient.name, timestamp, timezone),
+      createPatientVisitEmailBody({
+        transcription: `${transcription}\n\n\n\n${extractTopics}`,
+        medicalRecord: medicalRecord,
+      })
     );
 
-    return { transcription: transcription, medicalRecord: medicalRecord };
+    return {
+      transcription: transcription,
+      medicalRecord: medicalRecord,
+    };
   }
 
-  async processTranscription(transcription: string): Promise<PatientVisitSummary> {
+  async processTranscription(
+    transcription: string
+  ): Promise<{ topics: PatientVisitSummary; extractTopics: string }> {
     let messages: LLMMessage[] = [
       {
         role: 'system',
@@ -93,8 +102,11 @@ export class VisitService {
       patientVisitGPT.schema
     );
 
-    return JSON.parse(
-      medicalRecordFormatted.choices[0].message.function_call.arguments
-    ) as PatientVisitSummary;
+    return {
+      topics: JSON.parse(
+        medicalRecordFormatted.choices[0].message.function_call.arguments
+      ) as PatientVisitSummary,
+      extractTopics: extractTopics.choices[0].message.content,
+    };
   }
 }
