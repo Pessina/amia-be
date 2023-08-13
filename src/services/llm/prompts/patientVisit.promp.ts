@@ -9,14 +9,13 @@ const getMainTopicsTable = (transcription: string): Prompt[] => [
     role: 'user',
     content: `
     DADA:
-      - Transcrição da consulta: '''${transcription}'''
+      - Transcrição da consulta médica: '''${transcription}'''
 
     Organize as informações da trascrição nas seguintes tabelas:
 
-      - Todos os sintomas e Queixas:
-          - Colunas: Tipo, Sintoma/Queixa, Início, Piora, Localização, Periodicidade, Ritmo, Qualidade, Intensidade, Fatores Agravantes e de Alívio, Sintomas Concomitantes, Eventos Pregressos Semelhantes
-          - Tipo: Classifique em Sintoma ou Queixa
-          - Nome: Nome do sintoma/queixa utilizando código CID-10
+      - Todos os sintomas e queixas:
+          - Colunas: Sintoma/Queixa, Início, Piora, Localização, Periodicidade, Ritmo, Qualidade, Intensidade, Fatores Agravantes e de Alívio, Sintomas Concomitantes, Eventos Pregressos Semelhantes
+          - Sintoma/Queixa: Nome do sintoma/queixa utilizando código CID-10. Quando apropriado, utilize TERMOS CLÍNICOS (e.g. Estridor, Cefaleia, Dispneia, Acusia)
           - Início: Tempo decorrido desde o início do sintoma/queixa (dias, semanas, meses, anos, etc.)
           - Piora: Tempo decorrido desde a piora do sintoma/queixa (dias, semanas, meses, anos, etc.)
           - Localização: Onde o sintoma/queixa é percebido ou sentido pelo paciente
@@ -28,8 +27,8 @@ const getMainTopicsTable = (transcription: string): Prompt[] => [
           - Sintomas Concomitantes: Outros sintomas que ocorrem junto com este
           - Eventos Pregressos Semelhantes: Episódios anteriores parecidos
 
-      - Remédios:
-          - Colunas: Remédio, Dose, Frequência
+      - Medicações:
+          - Colunas: Medicação, Dose, Frequência
 
       - Exames:
           - Colunas: Exame, Tempo Decorrido
@@ -59,7 +58,7 @@ const getMainTopicsTable = (transcription: string): Prompt[] => [
 
       - Atividade Física:
           - Colunas: Atividade, Frequência
-
+          
     NOTA:
       - Se a informação não foi mencionada, não estiver especificada, estiver ambígua ou não clara, preencher a célula com "-"
       - A saída deve ser exclusivamente as tabelas, sem texto adicional
@@ -69,34 +68,37 @@ const getMainTopicsTable = (transcription: string): Prompt[] => [
   },
 ];
 
-const createMedicalRecord = (transcription: string, extractTopics: string): Prompt[] => [
+const createMedicalRecord = (transcription: string, mainTopics: string): Prompt[] => [
   {
     id: 'medialRecords',
     model: 'gpt-4',
     role: 'user',
     content: `
     DADA:
-      - Transcrição da consulta: '''${transcription}'''
-      - Tópicos principais: '''${extractTopics}'''
+      - Transcrição da consulta médica: '''${transcription}'''
+      - Tópicos principais de uma consulta médica: '''${mainTopics}'''
 
     Escreva o prontuário médico do paciente organizado em 9 tópicos:
 
       1 - Queixa principal e duração
       2 - História pregressa da moléstia atual
       3 - Interrogatório sobre diversos aparelhos
-          -Classifique os sintomas e queixas em: Sistema Nervoso (SN), Segmento Cefálico (SC) Crânio e Face, Sistema Pulmonar (SP), Sistema Cardiovascular (SCV), Trato Gastro-Intestinal (TGI), Renal / Metabólico (R/M): Genito-Urinário, Sistema Osteoarticular (SOA), Extremidades.
+          - Classifique os sintomas e queixas em: Sistema Nervoso (SN), Segmento Cefálico (SC) Crânio e Face, Sistema Pulmonar (SP), Sistema Cardiovascular (SCV), Trato Gastro-Intestinal (TGI), Renal / Metabólico (R/M): Genito-Urinário, Sistema Osteoarticular (SOA), Extremidades.
+          - Não mencione o aparelho caso não haja um sintoma/queixa relacionado
       4 - Antecedentes pessoais
       5 - Antecedentes familiares
       6 - Medicações de uso habitual
-          - Nome da medicação, dose e frequência
       7 - Exame físico
+          - Descrito com as palavras do médico
       8 - Hipóteses diagnósticas (Código CID-10)
-          - Relativo a queixa princinpal
+          - Escreva, exclusivamente, baseado no que o médico e paciente falaram
+          - Escreva, exclusivamente, relativo a queixa princinpal
       9 - Conduta
-          - Exames, medicamentos, procedimentos e encaminhamentos prescritos pelo médico
+          - Escreva, exclusivamente, baseado no que o médico e paciente falaram
+          - Exames, medicamentos, procedimentos encaminhamentos e retorno prescritos pelo médico
 
     NOTA:
-      - Escreva exclusivamente baseado no que o paciente e médico falaram.
+      - Escreva de forma flúida e natural, como se fosse um médico escrevendo o prontuário
       - Ao elaborar sua resposta, é essencial utilizar TERMOS CLÍNICOS (e.g. Estridor, Cefaleia, Dispneia, Acusia) sempre que apropriado.
       - Sua resposta não deve incluir PII (Personal Identifiable Information)
       - A resposta deve ser em JSON, no seguinte formato (title e content devem ser strings em "plain text"):
