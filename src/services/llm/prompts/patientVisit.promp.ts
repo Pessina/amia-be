@@ -14,8 +14,9 @@ const getMainTopicsTable = (transcription: string): Prompt[] => [
     Organize as informações da trascrição nas seguintes tabelas:
 
       - Todos os sintomas e Queixas:
-          - Colunas: Sintoma/Queixa, Início, Piora, Localização, Periodicidade, Ritmo, Qualidade, Intensidade, Fatores Agravantes e de Alívio, Sintomas Concomitantes, Eventos Pregressos Semelhantes
-          - Nome: Nome do sintoma/queixa. Preferencialmente, utilizando TERMOS CLÍNICOS (e.g. Estridor, Cefaleia, Dispneia, Acusia)
+          - Colunas: Tipo, Sintoma/Queixa, Início, Piora, Localização, Periodicidade, Ritmo, Qualidade, Intensidade, Fatores Agravantes e de Alívio, Sintomas Concomitantes, Eventos Pregressos Semelhantes
+          - Tipo: Classifique em Sintoma ou Queixa
+          - Nome: Nome do sintoma/queixa utilizando código CID-10
           - Início: Tempo decorrido desde o início do sintoma/queixa (dias, semanas, meses, anos, etc.)
           - Piora: Tempo decorrido desde a piora do sintoma/queixa (dias, semanas, meses, anos, etc.)
           - Localização: Onde o sintoma/queixa é percebido ou sentido pelo paciente
@@ -41,9 +42,11 @@ const getMainTopicsTable = (transcription: string): Prompt[] => [
           
       - Doenças do Paciente (presente e passado):
           - Colunas: Doença, Tempo Decorrido Diagnóstico, Tratamento
+          - Doença: Nome da donça utilizando código CID-10
           
       - Doenças Família:
           - Colunas: Doença, Parentesco
+          - Doença: Nome da donça utilizando código CID-10
         
       - Maus Hábitos:
           - Colunas: Hábito, Início, Término, Frequência
