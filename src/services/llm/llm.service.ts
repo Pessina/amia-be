@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { ChatCompletionResponse, ChatGptService, GPTSchema } from './models/gpt.service';
+import { ChatGptService, GptPipelineResponse } from './models/gpt.service';
+import { Prompt } from './prompts/prompts.types';
 
 type Models = 'gpt';
 
@@ -12,15 +13,11 @@ export type LLMMessage = {
 export class LLMService {
   constructor(private gpt: ChatGptService) {}
 
-  async processText(
-    model: Models,
-    messages: LLMMessage[],
-    responseSchema?: GPTSchema
-  ): Promise<ChatCompletionResponse> {
-    let resText: ChatCompletionResponse;
+  async processText(model: Models, prompts: Prompt[]): Promise<GptPipelineResponse> {
+    let resText: GptPipelineResponse;
 
     if (model === 'gpt') {
-      resText = await this.gpt.createChatCompletion('gpt-3.5-turbo-16k', messages, responseSchema);
+      resText = await this.gpt.runGPTPipeline(prompts);
     }
 
     return resText;
