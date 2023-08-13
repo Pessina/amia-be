@@ -61,7 +61,7 @@ export class VisitController {
   @Post('process-transcription')
   async processTranscription(
     @Body('transcription') transcription: string
-  ): Promise<{ topics: PatientVisitSummary; extractTopics: string }> {
+  ): Promise<{ medicalRecord: PatientVisitSummary }> {
     return await this.visit.processTranscription(transcription);
   }
 }

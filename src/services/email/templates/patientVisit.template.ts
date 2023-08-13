@@ -14,7 +14,9 @@ export const createPatientVisitEmailSubject = (
   return `${name} - [${formattedTimestamp}]`;
 };
 
-export const createPatientVisitEmailBody = (data: ProcessVisitRecordingResponse): string => {
+export const createPatientVisitEmailBody = (
+  data: ProcessVisitRecordingResponse & { mainTopicsTable: string }
+): string => {
   let topicsHtml = '';
 
   data.medicalRecord.topics.forEach((t) => {
@@ -36,58 +38,98 @@ export const createPatientVisitEmailBody = (data: ProcessVisitRecordingResponse)
           ${topicsHtml}
         </div>
         <div style="margin-bottom: 40px;">
-          <h2 style="color: #2F2F2F;">Transcrição</h2>
-          <p>${data.transcription.replace(/\n/g, '<br/>')}</p>
+          ${convertGPTTableToHTMLTable(data.mainTopicsTable)}
         </div>
       </body>
     </html>
   `;
 };
 
-type TableData = {
-  tableName: string;
-  headers: string[];
-  rows: string[][];
-};
-
 function convertGPTTableToHTMLTable(input: string): string {
   const sections: string[] = input.split('\n\n');
   let resultHTML = '';
 
-  sections.forEach((section: string) => {
-    const lines: string[] = section.split('\n');
-    const tableName: string = lines[0];
-    const headers: string[] = lines[1]
+  function processRow(row: string): string[] {
+    return row
       .split('|')
-      .map((header: string) => header.trim())
-      .filter((header: string) => header);
+      .map((cell) => cell.trim())
+      .filter((cell) => cell);
+  }
+
+  function buildTable(headers: string[], rows: string[][]): string {
+    return `
+          <table border="1">
+              <thead><tr>${headers.map((header) => `<th>${header}</th>`).join('')}</tr></thead>
+              <tbody>
+                  ${rows
+                    .map((row) => `<tr>${row.map((cell) => `<td>${cell}</td>`).join('')}</tr>`)
+                    .join('')}
+              </tbody>
+          </table>
+      `;
+  }
+
+  for (let i = 0; i < sections.length; i += 2) {
+    if (i + 1 >= sections.length) {
+      console.warn(`Skipping a section due to insufficient lines. Section: ${sections[i]}`);
+      continue;
+    }
+
+    const tableName: string = sections[i].replace('-', '').trim();
+    const lines: string[] = sections[i + 1].split('\n');
+
+    if (!lines.length) continue; // Skipping empty sections
+
+    const headers: string[] = processRow(lines[0]);
     const rows: string[][] = lines
-      .slice(2)
-      .map((row: string) => row.split('|').map((cell: string) => cell.trim()));
+      .slice(1)
+      .map(processRow)
+      .filter((row) => !row.join('').includes('----'));
 
     resultHTML += `<h2>${tableName}</h2>`;
-    resultHTML += '<table border="1"><thead><tr>';
-    headers.forEach((header: string) => {
-      resultHTML += `<th>${header}</th>`;
-    });
-    resultHTML += '</tr></thead><tbody>';
+    resultHTML += buildTable(headers, rows);
+  }
 
-    rows.forEach((row: string[]) => {
-      resultHTML += '<tr>';
-      row.forEach((cell: string) => {
-        resultHTML += `<td>${cell}</td>`;
-      });
-      resultHTML += '</tr>';
-    });
+  const styles = `
+        <style>
+              table {
+                  border-collapse: collapse;
+                  font-family: Arial, sans-serif;
+                  border: 1px solid #e0e0e0;
+                  margin-bottom: 20px;
+              }
 
-    resultHTML += '</tbody></table>';
-  });
+              h2 {
+                  font-family: Arial, sans-serif;
+                  color: #333;
+                  font-size: 24px;
+                  margin-bottom: 10px;
+              }
 
-  return resultHTML;
+              th, td {
+                  padding: 10px 15px;
+                  text-align: left;
+              }
+
+              th {
+                  background-color: #f5f5f5;
+                  color: #555;
+                  border-bottom: 2px solid #e0e0e0;
+              }
+
+              td {
+                  border-bottom: 1px solid #e0e0e0;
+              }
+
+              tr:nth-child(even) {
+                  background-color: #fafafa;
+              }
+
+              tr:hover {
+                  background-color: #f0f0f0;
+              }
+      </style>
+  `;
+
+  return resultHTML + styles;
 }
-
-const inputString = `...`; // Replace with your actual string
-const htmlOutput: string = convertGPTTableToHTMLTable(inputString);
-
-const example =
-  '- Todos os sintomas e Queixas:\n\n| Sintoma/Queixa | Início | Piora | Localização | Periodicidade | Ritmo | Qualidade | Intensidade | Fatores Agravantes e de Alívio | Sintomas Concomitantes | Eventos Pregressos Semelhantes |\n|----------------|--------|-------|-------------|---------------|-------|-----------|-------------|--------------------------------|------------------------|-------------------------------|\n| Tosse          | Vida toda | Última semana | Pulmões | Constante | Mais intensa ao acordar | Seca, com secreção amarela e traços de sangue | Alta | - | Falta de ar ao subir escadas | Sim, mas sem sangue |\n| Falta de ar    | Última semana | - | Pulmões | Ao subir escadas | - | - | - | Subir escadas | Tosse | - |\n| Dor na coluna  | - | - | Coluna | - | - | - | - | - | - | - |\n| Dor no abdômen | - | - | Abdômen | - | - | - | - | - | - | - |\n\n- Remédios:\n\n| Remédio | Dose | Frequência |\n|---------|------|------------|\n| Plopidogrel | 5mg | Uma vez ao dia |\n| Aspirina | 100mg | Uma vez ao dia |\n| Rosuvastatina | 200mg | Uma vez ao dia |\n| Enalapril | 300mg | Uma vez ao dia |\n| Hidroclorotiazida | 150mg | Uma vez ao dia |\n| Glifage | 150mg | Três vezes ao dia |\n| Metformina | 200mg | Duas vezes ao dia |\n\n- Exames:\n\n| Exame | Tempo Decorrido |\n|-------|-----------------|\n| Raio-X | - |\n| Tomografia | - |\n\n- Cirurgias:\n\n| Cirurgia | Tempo Decorrido | Motivo |\n|----------|-----------------|--------|\n| Cateterismo | 5 anos atrás | Infarto |\n\n- Alergias:\n\n| Alergia | Reação |\n|---------|--------|\n| - | - |\n\n- Doenças do Paciente (presente e passado):\n\n| Doença | Tempo Decorrido Diagnóstico | Tratamento |\n|--------|-----------------------------|------------|\n| Infarto | 5 anos atrás | Cateterismo |\n| Pressão alta | - | Medicamentos |\n| Diabetes | 10 anos atrás | Medicamentos |\n\n- Doenças Família:\n\n| Doença | Parentesco |\n|--------|------------|\n| Câncer de pulmão | Pai |\n| Pressão alta | Mãe |\n| Diabetes | Mãe |\n\n- Maus Hábitos:\n\n| Hábito | Início | Término | Frequência |\n|--------|--------|---------|------------|\n| Fumar | Há 40 anos | - | Um maço por dia |\n| Beber | - | - | Finais de semana |\n\n- Bons Hábitos:\n\n| Hábito | Início | Término | Frequência |\n|--------|--------|---------|------------|\n| - | - | - | - |\n\n- Alimentação:\n\n| Alimentação |\n|-------------|\n| Normal |\n\n- Atividade Física:\n\n| Atividade | Frequência |\n|-----------|------------|\n| Caminhada | - |';

@@ -48,7 +48,7 @@ export class VisitService {
   ): Promise<ProcessVisitRecordingResponse> {
     const transcription = await this.stt.processAudio('whisper', audio);
 
-    const { topics: medicalRecord, extractTopics } = await this.processTranscription(transcription);
+    const { medicalRecord, mainTopicsTable } = await this.processTranscription(transcription);
     const patient = await this.patientService.getPatientById(patientId);
 
     await this.email.sendEmail(
@@ -56,36 +56,35 @@ export class VisitService {
       email,
       createPatientVisitEmailSubject(patient.name, timestamp, timezone),
       createPatientVisitEmailBody({
-        transcription: `${transcription}\n\n\n\n${extractTopics}`,
-        medicalRecord: medicalRecord,
+        mainTopicsTable,
+        medicalRecord,
       })
     );
 
     return {
-      transcription: transcription,
-      medicalRecord: medicalRecord,
+      medicalRecord,
     };
   }
 
   async processTranscription(
     transcription: string
-  ): Promise<{ topics: PatientVisitSummary; extractTopics: string }> {
-    const mainTopics = await this.llm.processText(
+  ): Promise<{ medicalRecord: PatientVisitSummary; mainTopicsTable: string }> {
+    const mainTopicsTable = await this.llm.processText(
       'gpt',
-      patientVisitGPT.getMainTopics(transcription)
+      patientVisitGPT.getMainTopicsTable(transcription)
     );
 
     const medicalRecords = await this.llm.processText(
       'gpt',
       patientVisitGPT.createMedicalRecord(
         transcription,
-        mainTopics.messages[mainTopics.messages.length - 1]
+        mainTopicsTable.messages[mainTopicsTable.messages.length - 1]
       )
     );
 
     return {
-      topics: JSON.parse(medicalRecords.messages[medicalRecords.messages.length - 1]),
-      extractTopics: mainTopics.messages[mainTopics.messages.length - 1],
+      medicalRecord: JSON.parse(medicalRecords.messages[medicalRecords.messages.length - 1]),
+      mainTopicsTable: mainTopicsTable.messages[mainTopicsTable.messages.length - 1],
     };
   }
 }

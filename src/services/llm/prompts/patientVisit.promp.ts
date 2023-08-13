@@ -2,7 +2,7 @@
 
 import { Prompt } from './prompts.types';
 
-const getMainTopics = (transcription: string): Prompt[] => [
+const getMainTopicsTable = (transcription: string): Prompt[] => [
   {
     id: 'mainTopics',
     model: 'gpt-4',
@@ -126,6 +126,6 @@ export type PatientVisitSummary = {
 };
 
 export const patientVisitGPT = {
-  getMainTopics,
+  getMainTopicsTable,
   createMedicalRecord,
 };
