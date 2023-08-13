@@ -47,6 +47,35 @@ function convertToHTMLTable(input) {
     resultHTML += '</tbody></table>';
   }
 
+  const tableStyles = `
+    border-collapse: collapse;
+  `;
+
+  const thStyles = `
+    background-color: #ddd;
+    border: 1px solid #bbb;
+    padding: 5px 10px;
+  `;
+
+  const tdStyles = `
+    border: 1px solid #ccc;
+    padding: 5px 10px;
+  `;
+
+  resultHTML += `<style>
+    table {
+      ${tableStyles}
+    }
+    
+    th {
+      ${thStyles}
+    }
+    
+    td {
+      ${tdStyles}
+    }
+  </style>`;
+
   return resultHTML;
 }
 
