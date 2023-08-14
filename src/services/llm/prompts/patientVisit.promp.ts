@@ -1,5 +1,6 @@
 // cSpell:disable
 
+import { medicalNames } from './constants/medicalNames';
 import { Prompt } from './prompts.types';
 
 const getMainTopicsTable = (transcription: string): Prompt[] => [
@@ -10,12 +11,13 @@ const getMainTopicsTable = (transcription: string): Prompt[] => [
     content: `
     DADA:
       - Transcrição da consulta médica: '''${transcription}'''
+      - TERMOS CLÍNICOS: '''${medicalNames.join(', ')}'''
 
     Organize as informações da trascrição nas seguintes tabelas:
 
       - Todos os sintomas e queixas:
           - Colunas: Sintoma/Queixa, Início, Piora, Localização, Periodicidade, Ritmo, Qualidade, Intensidade, Fatores Agravantes e de Alívio, Sintomas Concomitantes, Eventos Pregressos Semelhantes
-          - Sintoma/Queixa: Nome do sintoma/queixa utilizando código CID-10. Quando apropriado, utilize TERMOS CLÍNICOS (e.g. Estridor, Cefaleia, Dispneia, Acusia)
+          - Sintoma/Queixa: Nome do sintoma/queixa, preferencialmente, utilize TERMOS CLÍNICOS
           - Início: Tempo decorrido desde o início do sintoma/queixa (dias, semanas, meses, anos, etc.)
           - Piora: Tempo decorrido desde a piora do sintoma/queixa (dias, semanas, meses, anos, etc.)
           - Localização: Onde o sintoma/queixa é percebido ou sentido pelo paciente
@@ -41,11 +43,11 @@ const getMainTopicsTable = (transcription: string): Prompt[] => [
           
       - Doenças do Paciente (presente e passado):
           - Colunas: Doença, Tempo Decorrido Diagnóstico, Tratamento
-          - Doença: Nome da donça utilizando código CID-10
+          - Doença: Nome da doença, preferencialmente, utilize TERMOS CLÍNICOS
           
       - Doenças Família:
           - Colunas: Doença, Parentesco
-          - Doença: Nome da donça utilizando código CID-10
+          - Doença: Nome da doença, preferencialmente, utilize TERMOS CLÍNICOS
         
       - Maus Hábitos:
           - Colunas: Hábito, Início, Término, Frequência
@@ -62,7 +64,7 @@ const getMainTopicsTable = (transcription: string): Prompt[] => [
     NOTA:
       - Se a informação não foi mencionada, não estiver especificada, estiver ambígua ou não clara, preencher a célula com "-"
       - A saída deve ser exclusivamente as tabelas, sem texto adicional
-      - Ao elaborar sua resposta, é essencial utilizar TERMOS CLÍNICOS (e.g. Estridor, Cefaleia, Dispneia, Acusia) sempre que apropriado.
+      - Ao elaborar sua resposta, é essencial utilizar TERMOS CLÍNICOS sempre que apropriado.
       - Sua resposta não deve incluir PII (Personal Identifiable Information)
 `,
   },
@@ -81,7 +83,9 @@ const createMedicalRecord = (transcription: string, mainTopics: string): Prompt[
     Escreva o prontuário médico do paciente organizado em 9 tópicos:
 
       1 - Queixa principal e duração
+          - Essencial utilizar TERMOS CLÍNICOS (e.g. Estridor, Cefaleia, Dispneia, Acusia) sempre que apropriado.
       2 - História pregressa da moléstia atual
+          - Essencial utilizar TERMOS CLÍNICOS (e.g. Estridor, Cefaleia, Dispneia, Acusia) sempre que apropriado.
       3 - Interrogatório sobre diversos aparelhos
           - Classifique os sintomas e queixas em: Sistema Nervoso (SN), Segmento Cefálico (SC) Crânio e Face, Sistema Pulmonar (SP), Sistema Cardiovascular (SCV), Trato Gastro-Intestinal (TGI), Renal / Metabólico (R/M): Genito-Urinário, Sistema Osteoarticular (SOA), Extremidades.
           - Não mencione o aparelho caso não haja um sintoma/queixa relacionado
@@ -90,15 +94,14 @@ const createMedicalRecord = (transcription: string, mainTopics: string): Prompt[
       6 - Medicações de uso habitual
       7 - Exame físico
           - Descrito com as palavras do médico
+          - Baseado no que o médico disse. Caso não haja diagnóstico, preencher com "Não especificado"
       8 - Hipóteses diagnósticas (Código CID-10)
-          - Escreva, exclusivamente, baseado no que o médico e paciente falaram
-          - Escreva, exclusivamente, relativo a queixa princinpal
+          - Baseado no dignóstico do médico. Caso não haja diagnóstico, preencher com "Não especificado"
       9 - Conduta
-          - Escreva, exclusivamente, baseado no que o médico e paciente falaram
+          - Baseado na conduta preescrita pelo médico. Caso não haja conduta, preencher com "Não especificado"
           - Exames, medicamentos, procedimentos encaminhamentos e retorno prescritos pelo médico
 
     NOTA:
-      - Escreva de forma flúida e natural, como se fosse um médico escrevendo o prontuário
       - Ao elaborar sua resposta, é essencial utilizar TERMOS CLÍNICOS (e.g. Estridor, Cefaleia, Dispneia, Acusia) sempre que apropriado.
       - Sua resposta não deve incluir PII (Personal Identifiable Information)
       - A resposta deve ser em JSON, no seguinte formato (title e content devem ser strings em "plain text"):
