@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PatientService } from 'src/patient/patient.service';
 import { EmailService } from 'src/services/email/email.service';
-import { LLMMessage, LLMService } from 'src/services/llm/llm.service';
+import { LLMService } from 'src/services/llm/llm.service';
 import { PatientVisitSummary, patientVisitGPT } from 'src/services/llm/prompts/patientVisit.promp';
 import { STTService } from 'src/services/stt/stt.service';
 import { ProcessVisitRecordingResponse } from './visit.types';
@@ -47,7 +47,8 @@ export class VisitService {
     timezone: string
   ): Promise<ProcessVisitRecordingResponse> {
     const transcription = await this.stt.processAudio('whisper', audio);
-    const { topics: medicalRecord, extractTopics } = await this.processTranscription(transcription);
+
+    const { medicalRecord, mainTopicsTable } = await this.processTranscription(transcription);
     const patient = await this.patientService.getPatientById(patientId);
 
     await this.email.sendEmail(
@@ -55,58 +56,35 @@ export class VisitService {
       email,
       createPatientVisitEmailSubject(patient.name, timestamp, timezone),
       createPatientVisitEmailBody({
-        transcription: `${transcription}\n\n\n\n${extractTopics}`,
-        medicalRecord: medicalRecord,
+        mainTopicsTable,
+        medicalRecord,
       })
     );
 
     return {
-      transcription: transcription,
-      medicalRecord: medicalRecord,
+      medicalRecord,
     };
   }
 
   async processTranscription(
     transcription: string
-  ): Promise<{ topics: PatientVisitSummary; extractTopics: string }> {
-    let messages: LLMMessage[] = [
-      {
-        role: 'system',
-        content: patientVisitGPT.context,
-      },
-      {
-        role: 'user',
-        content: patientVisitGPT.extractTopics(transcription),
-      },
-    ];
-
-    const extractTopics = await this.llm.processText('gpt', messages);
-
-    messages.push({
-      role: 'user',
-      content: patientVisitGPT.createMedicalRecord(extractTopics.choices[0].message.content),
-    });
-
-    const medicalRecordNonFormatted = await this.llm.processText('gpt', messages);
-
-    messages = [
-      {
-        role: 'user',
-        content: patientVisitGPT.formatJSON(medicalRecordNonFormatted.choices[0].message.content),
-      },
-    ];
-
-    const medicalRecordFormatted = await this.llm.processText(
+  ): Promise<{ medicalRecord: PatientVisitSummary; mainTopicsTable: string }> {
+    const mainTopicsTable = await this.llm.processText(
       'gpt',
-      messages,
-      patientVisitGPT.schema
+      patientVisitGPT.getMainTopicsTable(transcription)
+    );
+
+    const medicalRecords = await this.llm.processText(
+      'gpt',
+      patientVisitGPT.createMedicalRecord(
+        transcription,
+        mainTopicsTable.messages[mainTopicsTable.messages.length - 1]
+      )
     );
 
     return {
-      topics: JSON.parse(
-        medicalRecordFormatted.choices[0].message.function_call.arguments
-      ) as PatientVisitSummary,
-      extractTopics: extractTopics.choices[0].message.content,
+      medicalRecord: JSON.parse(medicalRecords.messages[medicalRecords.messages.length - 1]),
+      mainTopicsTable: mainTopicsTable.messages[mainTopicsTable.messages.length - 1],
     };
   }
 }

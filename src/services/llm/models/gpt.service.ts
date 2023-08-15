@@ -1,67 +1,100 @@
-import { Injectable } from '@nestjs/common';
 import axios from 'axios';
-import { LLMMessage } from '../llm.service';
+import { Prompt, PromptSchema } from '../prompts/prompts.types';
 
-type StringObject =
-  | {
-      [key: string]: StringObject | Array<StringObject> | string;
-    }
-  | (StringObject | Array<StringObject> | string)[];
-
-export type GPTSchema = {
-  type: 'object';
-  properties: {
-    [key: string]: StringObject;
-  };
+type ModelPricing = {
+  input: number;
+  output: number;
 };
 
-export type ChatCompletionResponse = {
-  id: string;
-  object: string;
-  created: number;
-  model: string;
-  choices: Array<{
-    index: number;
-    message: {
-      role: string;
-      content: string;
-      function_call: {
-        name: string;
-        arguments: string;
-      };
-    };
-    finish_reason: string;
-  }>;
-  usage: {
-    prompt_tokens: number;
-    completion_tokens: number;
-    total_tokens: number;
-  };
+const openAIPrices: { [key: string]: ModelPricing } = {
+  'gpt-3.5-turbo': {
+    input: 0.0015, // /1k tokens
+    output: 0.002, // /1k tokens
+  },
+  'gpt-3.5-turbo-16k': {
+    input: 0.003, // /1k tokens
+    output: 0.004, // /1k tokens
+  },
+  'gpt-4': {
+    input: 0.03, // /1k tokens
+    output: 0.06, // /1k tokens
+  },
+  'whisper-1': {
+    input: 0.006, // /min
+    output: 0,
+  },
 };
 
-@Injectable()
+export type Message = {
+  role: string;
+  content: string;
+};
+
+export type GptResponse = {
+  message: string;
+  price: number;
+};
+
+export type GptPipelineResponse = {
+  messages: string[];
+  price: number;
+};
+
 export class ChatGptService {
-  private readonly base_url = 'https://api.openai.com/v1/chat/completions';
+  private baseURL = 'https://api.openai.com/v1/chat/completions';
 
-  async createChatCompletion(
-    model: string,
-    messages: LLMMessage[],
-    responseSchema?: GPTSchema
-  ): Promise<ChatCompletionResponse> {
+  async gpt(modelName = 'gpt-4', messages: Message[], schema?: PromptSchema): Promise<GptResponse> {
     const headers = {
       Authorization: `Bearer ${process.env.OPEAN_AI_API_KEY}`,
       'Content-Type': 'application/json',
     };
 
     const data = {
-      model,
+      model: modelName,
       temperature: 0,
       messages: messages,
-      ...(responseSchema ? { functions: [{ name: 'res', parameters: responseSchema }] } : {}),
+      ...(schema ? { functions: [{ name: 'res', parameters: schema }] } : {}),
     };
 
-    const res = await axios.post<ChatCompletionResponse>(this.base_url, data, { headers });
+    const response = await axios.post(this.baseURL, data, { headers });
+    const messageContent = response.data.choices[0].message;
 
-    return res.data;
+    let retMessage;
+    if (schema) {
+      retMessage = messageContent.function_call.arguments;
+    } else {
+      retMessage = messageContent.content;
+    }
+
+    const price =
+      response.data.usage.prompt_tokens * (openAIPrices[modelName].input / 1000) +
+      response.data.usage.completion_tokens * (openAIPrices[modelName].output / 1000);
+
+    return { message: retMessage, price: price };
+  }
+
+  async runGPTPipeline(prompts: Prompt[]): Promise<GptPipelineResponse> {
+    const responses: { [key: string]: string } = {};
+    const result: string[] = [];
+    let price = 0;
+
+    for (const prompt of prompts) {
+      let content = prompt.content;
+
+      for (const id in responses) {
+        content = content.replace('{' + id + '}', responses[id]);
+      }
+
+      const messages: Message[] = [{ role: prompt.role, content: content }];
+      const schema = prompt.schema;
+
+      const response = await this.gpt(prompt.model, messages, schema);
+
+      responses[prompt.id] = response.message;
+      result.push(response.message);
+      price += response.price;
+    }
+
+    return { messages: result, price: price };
   }
 }
