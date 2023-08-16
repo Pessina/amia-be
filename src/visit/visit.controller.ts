@@ -5,6 +5,7 @@ import {
   Param,
   Post,
   Req,
+  Res,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -13,10 +14,10 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { VisitService } from './visit.service';
 import { AppAuthGuard } from 'src/auth/guard';
 import { AuthRequest } from 'src/types/AuthRequest';
-import { ProcessVisitRecordingResponse } from './visit.types';
 import { PatientVisitSummary } from 'src/services/llm/prompts/patientVisit.promp';
 import { Visit } from '@prisma/client';
 import { parseISO } from 'date-fns';
+import { Response } from 'express';
 
 @Controller('visit')
 export class VisitController {
@@ -45,15 +46,24 @@ export class VisitController {
     @UploadedFile() audio: Express.Multer.File,
     @Body('patientId') patientId: string,
     @Body('timestamp') timestamp: string,
-    @Body('timezone') timezone: string
-  ): Promise<ProcessVisitRecordingResponse> {
-    return await this.visit.processVisitRecording(
+    @Body('timezone') timezone: string,
+    @Res() res: Response
+  ): Promise<void> {
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+
+    const response = await this.visit.processVisitRecording(
       req.user.email,
       audio,
       parseInt(patientId),
       timestamp,
       timezone
     );
+
+    res.write(JSON.stringify({ type: 'success', data: response }));
+
+    res.end();
   }
 
   // TODO: remove this endpoint, it's only for testing

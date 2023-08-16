@@ -71,8 +71,7 @@ function convertGPTTableToHTMLTable(input: string): string {
 
   for (let i = 0; i < sections.length; i += 2) {
     if (i + 1 >= sections.length) {
-      console.warn(`Skipping a section due to insufficient lines. Section: ${sections[i]}`);
-      continue;
+      throw new Error(`Skipping a section due to insufficient lines. Input: ${input}`);
     }
 
     const tableName: string = sections[i].replace('-', '').trim();
