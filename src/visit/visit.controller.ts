@@ -53,6 +53,10 @@ export class VisitController {
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
 
+    const keepAliveInterval = setInterval(() => {
+      res.write('');
+    }, 30000);
+
     const response = await this.visit.processVisitRecording(
       req.user.email,
       audio,
@@ -63,6 +67,7 @@ export class VisitController {
 
     res.write(JSON.stringify({ type: 'success', data: response }));
 
+    clearInterval(keepAliveInterval);
     res.end();
   }
 
