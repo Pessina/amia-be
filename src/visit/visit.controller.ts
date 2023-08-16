@@ -53,69 +53,17 @@ export class VisitController {
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
 
-    try {
-      // const response = await this.visit.processVisitRecording(
-      //   req.user.email,
-      //   audio,
-      //   parseInt(patientId),
-      //   timestamp,
-      //   timezone
-      // );
-      const response = {
-        medicalRecord: {
-          topics: [
-            {
-              title: 'Visit Summary',
-              content: "Here's a summary of your visit",
-            },
-            {
-              title: 'Visit Summary1',
-              content: "Here's a summary of your visit",
-            },
-            {
-              title: 'Visit Summary3',
-              content: "Here's a summary of your visit",
-            },
-            {
-              title: 'Visit Summary4',
-              content: "Here's a summary of your visit",
-            },
-            {
-              title: 'Visit Summary5',
-              content: "Here's a summary of your visit",
-            },
-            {
-              title: 'Visit Summary6',
-              content: "Here's a summary of your visit",
-            },
-            {
-              title: 'Visit Summary7',
-              content: "Here's a summary of your visit",
-            },
-            {
-              title: 'Visit Summary8',
-              content: "Here's a summary of your visit",
-            },
-          ],
-        },
-      };
+    const response = await this.visit.processVisitRecording(
+      req.user.email,
+      audio,
+      parseInt(patientId),
+      timestamp,
+      timezone
+    );
 
-      res.write('event: success\n');
-      res.write(`data: ${JSON.stringify(response)}\n\n`);
-    } catch (error) {
-      res.write('event: error\n');
-      res.write(
-        `data: ${JSON.stringify({
-          errorCode: 'PROCESSING_ERROR',
-          errorMessage: error.message,
-          errorDetails: {
-            reason: 'Failed to process visit recording',
-          },
-        })}\n\n`
-      );
-    } finally {
-      res.end();
-    }
+    res.write(JSON.stringify({ type: 'success', data: response }));
+
+    res.end();
   }
 
   // TODO: remove this endpoint, it's only for testing
