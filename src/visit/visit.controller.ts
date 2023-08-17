@@ -54,7 +54,7 @@ export class VisitController {
     res.setHeader('Connection', 'keep-alive');
 
     const keepAliveInterval = setInterval(() => {
-      res.write('');
+      res.write(`data: ${JSON.stringify({ type: 'keep-alive' })}\n\n`);
     }, 30000);
 
     const response = await this.visit.processVisitRecording(
@@ -65,7 +65,7 @@ export class VisitController {
       timezone
     );
 
-    res.write(JSON.stringify({ type: 'success', data: response }));
+    res.write(`data: ${JSON.stringify({ type: 'success', data: response })}\n\n`);
 
     clearInterval(keepAliveInterval);
     res.end();
