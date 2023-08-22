@@ -52,7 +52,7 @@ export class VisitController {
   ): Promise<void> {
     const sse = new SSEHandler(res);
 
-    sse.startKeepAlive(1000);
+    sse.startKeepAlive(30000);
 
     try {
       const response = await this.visit.processVisitRecording(
@@ -64,11 +64,13 @@ export class VisitController {
       );
 
       sse.sendMessage({
-        data: { type: 'success', data: response },
+        event: 'success',
+        data: response,
       });
     } catch (error) {
       sse.sendMessage({
-        data: { type: 'error', message: error.message },
+        event: 'error',
+        data: error.message,
       });
     } finally {
       sse.closeConnection();
