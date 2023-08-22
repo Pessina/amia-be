@@ -18,6 +18,7 @@ import { PatientVisitSummary } from 'src/services/llm/prompts/patientVisit.promp
 import { Visit } from '@prisma/client';
 import { parseISO } from 'date-fns';
 import { Response } from 'express';
+import { SSEHandler } from 'src/utils/sse-handler';
 
 @Controller('visit')
 export class VisitController {
@@ -49,26 +50,29 @@ export class VisitController {
     @Body('timezone') timezone: string,
     @Res() res: Response
   ): Promise<void> {
-    res.setHeader('Content-Type', 'text/event-stream');
-    res.setHeader('Cache-Control', 'no-cache');
-    res.setHeader('Connection', 'keep-alive');
+    const sse = new SSEHandler(res);
 
-    const keepAliveInterval = setInterval(() => {
-      res.write(`data: ${JSON.stringify({ type: 'keep-alive' })}\n\n`);
-    }, 30000);
+    sse.startKeepAlive(1000);
 
-    const response = await this.visit.processVisitRecording(
-      req.user.email,
-      audio,
-      parseInt(patientId),
-      timestamp,
-      timezone
-    );
+    try {
+      const response = await this.visit.processVisitRecording(
+        req.user.email,
+        audio,
+        parseInt(patientId),
+        timestamp,
+        timezone
+      );
 
-    res.write(`data: ${JSON.stringify({ type: 'success', data: response })}\n\n`);
-
-    clearInterval(keepAliveInterval);
-    res.end();
+      sse.sendMessage({
+        data: { type: 'success', data: response },
+      });
+    } catch (error) {
+      sse.sendMessage({
+        data: { type: 'error', message: error.message },
+      });
+    } finally {
+      sse.closeConnection();
+    }
   }
 
   // TODO: remove this endpoint, it's only for testing
