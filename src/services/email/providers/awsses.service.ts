@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { SESClient, SendEmailCommand } from '@aws-sdk/client-ses';
 
 @Injectable()
@@ -31,6 +31,10 @@ export class AWSSESService {
 
     const sendEmailCommand = new SendEmailCommand(params);
 
-    await this.ses.send(sendEmailCommand);
+    try {
+      await this.ses.send(sendEmailCommand);
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
   }
 }
