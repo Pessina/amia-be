@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import axios from 'axios';
 import * as FormData from 'form-data';
 
@@ -12,14 +12,17 @@ export class WhisperService {
   async convertAudioToText(file: Express.Multer.File): Promise<string> {
     const formData = this.createFormData(file);
 
-    const response = await axios.post<{ text: string }>(this.baseURL, formData, {
-      headers: {
-        ...formData.getHeaders(),
-        ...this.headers,
-      },
-    });
-
-    return response.data.text;
+    try {
+      const response = await axios.post<{ text: string }>(this.baseURL, formData, {
+        headers: {
+          ...formData.getHeaders(),
+          ...this.headers,
+        },
+      });
+      return response.data.text;
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
   }
 
   private createFormData(file: Express.Multer.File): FormData {

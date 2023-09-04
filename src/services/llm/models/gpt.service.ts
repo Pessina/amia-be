@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { Prompt, PromptSchema } from '../prompts/prompts.types';
+import { HttpException, HttpStatus } from '@nestjs/common';
 
 type ModelPricing = {
   input: number;
@@ -56,21 +57,25 @@ export class ChatGptService {
       ...(schema ? { functions: [{ name: 'res', parameters: schema }] } : {}),
     };
 
-    const response = await axios.post(this.baseURL, data, { headers });
-    const messageContent = response.data.choices[0].message;
+    try {
+      const response = await axios.post(this.baseURL, data, { headers });
+      const messageContent = response.data.choices[0].message;
 
-    let retMessage;
-    if (schema) {
-      retMessage = messageContent.function_call.arguments;
-    } else {
-      retMessage = messageContent.content;
+      let retMessage;
+      if (schema) {
+        retMessage = messageContent.function_call.arguments;
+      } else {
+        retMessage = messageContent.content;
+      }
+
+      const price =
+        response.data.usage.prompt_tokens * (openAIPrices[modelName].input / 1000) +
+        response.data.usage.completion_tokens * (openAIPrices[modelName].output / 1000);
+
+      return { message: retMessage, price: price };
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }
-
-    const price =
-      response.data.usage.prompt_tokens * (openAIPrices[modelName].input / 1000) +
-      response.data.usage.completion_tokens * (openAIPrices[modelName].output / 1000);
-
-    return { message: retMessage, price: price };
   }
 
   async runGPTPipeline(prompts: Prompt[]): Promise<GptPipelineResponse> {
