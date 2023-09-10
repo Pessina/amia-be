@@ -28,7 +28,7 @@ export class VisitController {
   @Post('')
   async createVisit(
     @Body('patientId') patientId: string,
-    @Body('timestamp') requestTimestamp: string
+    @Body('timestamp') requestTimestamp: string,
   ): Promise<Visit> {
     return await this.visit.createVisit(parseInt(patientId), parseISO(requestTimestamp));
   }
@@ -48,7 +48,7 @@ export class VisitController {
     @Body('patientId') patientId: string,
     @Body('timestamp') timestamp: string,
     @Body('timezone') timezone: string,
-    @Res() res: Response
+    @Res() res: Response,
   ): Promise<void> {
     const sse = new SSEHandler(res);
 
@@ -60,7 +60,7 @@ export class VisitController {
         audio,
         parseInt(patientId),
         timestamp,
-        timezone
+        timezone,
       );
 
       sse.sendMessage({
@@ -81,7 +81,7 @@ export class VisitController {
   @UseGuards(AppAuthGuard)
   @Post('process-transcription')
   async processTranscription(
-    @Body('transcription') transcription: string
+    @Body('transcription') transcription: string,
   ): Promise<{ medicalRecord: PatientVisitSummary }> {
     return await this.visit.processTranscription(transcription);
   }
