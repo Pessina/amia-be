@@ -10,6 +10,9 @@ async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);
 
   app.useGlobalFilters(new AllExceptionsFilter());
+  app.enableCors({
+    origin: 'http://localhost:3000',
+  });
 
   // TODO: Finish configure swagger
   const options = new DocumentBuilder().build();

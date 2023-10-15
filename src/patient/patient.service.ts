@@ -29,7 +29,7 @@ export class PatientService {
             meta: { target: ['assignedId'] },
             status: HttpStatus.BAD_REQUEST,
           },
-          error
+          error,
         );
       }
 

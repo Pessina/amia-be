@@ -15,7 +15,7 @@ export class PatientController {
   @Post()
   async createPatient(
     @Req() req: AuthRequest,
-    @Body() patientData: CreatePatientDto
+    @Body() patientData: CreatePatientDto,
   ): Promise<Patient> {
     return this.patientService.createPatient(req.user.id, patientData);
   }
@@ -31,7 +31,7 @@ export class PatientController {
   async searchPatients(
     @Req() req: AuthRequest,
     @Query('assignedId') assignedId: string,
-    @Query('name') name: string
+    @Query('name') name: string,
   ): Promise<Patient[]> {
     return this.patientService.searchPatients(req.user.id, assignedId, name);
   }
