@@ -7,12 +7,8 @@ import { STTService } from 'src/services/stt/stt.service';
 
 import { ChatGptService } from 'src/services/llm/models/gpt.service';
 import { WhisperService } from 'src/services/stt/models/whisper.service';
-import { SpeechmaticsService } from 'src/services/stt/models/speechmatics.service';
-
-import { RevAiService } from 'src/services/stt/models/rev.ai';
 import { AWSSESService } from 'src/services/email/providers/awsses.service';
 import { PatientModule } from 'src/patient/patient.module';
-import { PatientService } from 'src/patient/patient.service';
 import { PrismaService } from 'src/prisma.service';
 
 @Module({
@@ -25,8 +21,6 @@ import { PrismaService } from 'src/prisma.service';
     STTService,
     ChatGptService,
     WhisperService,
-    SpeechmaticsService,
-    RevAiService,
     AWSSESService,
     PrismaService,
   ],
