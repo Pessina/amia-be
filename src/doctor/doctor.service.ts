@@ -34,4 +34,10 @@ export class DoctorService {
 
     return false;
   }
+
+  async deleteDoctor(id: number): Promise<void> {
+    await this.prisma.doctor.delete({
+      where: { id },
+    });
+  }
 }

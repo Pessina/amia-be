@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { Prompt, PromptSchema } from '../prompts/prompts.types';
 import { HttpException, HttpStatus } from '@nestjs/common';
+import * as Sentry from '@sentry/node';
 
 type ModelPricing = {
   input: number;
@@ -42,11 +43,12 @@ export type GptPipelineResponse = {
 };
 
 export class ChatGptService {
-  private baseURL = 'https://api.openai.com/v1/chat/completions';
+  private baseURL =
+    'https://nami-ai-gpt4.openai.azure.com/openai/deployments/gpt4/chat/completions?api-version=2023-08-01-preview';
 
   async gpt(modelName = 'gpt-4', messages: Message[], schema?: PromptSchema): Promise<GptResponse> {
     const headers = {
-      Authorization: `Bearer ${process.env.OPEAN_AI_API_KEY}`,
+      'api-key': process.env.AZURE_OPEN_AI_GPT_API_KEY,
       'Content-Type': 'application/json',
     };
 
@@ -74,7 +76,7 @@ export class ChatGptService {
 
       return { message: retMessage, price: price };
     } catch (error) {
-      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+      Sentry.captureException(new HttpException(error.message, HttpStatus.BAD_REQUEST));
     }
   }
 

@@ -1,9 +1,10 @@
-import { Controller, Post, Body, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Delete, Req } from '@nestjs/common';
 import { CreateDoctorDto, BaseDoctorDto } from './dto/create-doctor.dto';
 import { DoctorService } from './doctor.service';
 import { AppAuthGuard } from 'src/auth/guard';
 import { ApiBody } from '@nestjs/swagger';
 import { Doctor } from '@prisma/client';
+import { AuthRequest } from 'src/types/AuthRequest';
 
 @Controller('doctor')
 export class DoctorController {
@@ -20,5 +21,11 @@ export class DoctorController {
   @ApiBody({ type: BaseDoctorDto })
   async existDoctor(@Body() doctorDto: BaseDoctorDto): Promise<boolean> {
     return this.doctorService.existDoctor(doctorDto);
+  }
+
+  @UseGuards(AppAuthGuard)
+  @Delete()
+  deleteDoctor(@Req() req: AuthRequest): Promise<void> {
+    return this.doctorService.deleteDoctor(req.user.id);
   }
 }

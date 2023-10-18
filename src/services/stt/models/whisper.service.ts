@@ -1,12 +1,14 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import axios from 'axios';
 import * as FormData from 'form-data';
+import * as Sentry from '@sentry/node';
 
 @Injectable()
 export class WhisperService {
-  private baseURL = 'https://api.openai.com/v1/audio/transcriptions';
+  private baseURL =
+    'https://nami-ai-whisper.openai.azure.com/openai/deployments/whisper/audio/transcriptions?api-version=2023-09-01-preview';
   private headers = {
-    Authorization: `Bearer ${process.env.OPEAN_AI_API_KEY}`,
+    'api-key': `${process.env.AZURE_OPEN_AI_WHISPER_API_KEY}`,
   };
 
   async convertAudioToText(file: Express.Multer.File): Promise<string> {
@@ -21,7 +23,7 @@ export class WhisperService {
       });
       return response.data.text;
     } catch (error) {
-      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+      Sentry.captureException(new HttpException(error.message, HttpStatus.BAD_REQUEST));
     }
   }
 

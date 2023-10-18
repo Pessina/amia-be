@@ -19,7 +19,7 @@ export class VisitService {
     private llm: LLMService,
     private email: EmailService,
     private patientService: PatientService,
-    private prisma: PrismaService
+    private prisma: PrismaService,
   ) {}
 
   async createVisit(patientId: number, requestTimestamp: Date): Promise<Visit> {
@@ -44,7 +44,7 @@ export class VisitService {
     audio: Express.Multer.File,
     patientId: number,
     timestamp: string,
-    timezone: string
+    timezone: string,
   ): Promise<ProcessVisitRecordingResponse> {
     const transcription = await this.stt.processAudio('whisper', audio);
 
@@ -58,7 +58,7 @@ export class VisitService {
       createPatientVisitEmailBody({
         mainTopicsTable,
         medicalRecord,
-      })
+      }),
     );
 
     return {
@@ -67,19 +67,19 @@ export class VisitService {
   }
 
   async processTranscription(
-    transcription: string
+    transcription: string,
   ): Promise<{ medicalRecord: PatientVisitSummary; mainTopicsTable: string }> {
     const mainTopicsTable = await this.llm.processText(
       'gpt',
-      patientVisitGPT.getMainTopicsTable(transcription)
+      patientVisitGPT.getMainTopicsTable(transcription),
     );
 
     const medicalRecords = await this.llm.processText(
       'gpt',
       patientVisitGPT.createMedicalRecord(
         transcription,
-        mainTopicsTable.messages[mainTopicsTable.messages.length - 1]
-      )
+        mainTopicsTable.messages[mainTopicsTable.messages.length - 1],
+      ),
     );
 
     return {
