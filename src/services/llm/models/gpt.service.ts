@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { Prompt, PromptSchema } from '../prompts/prompts.types';
 import { HttpException, HttpStatus } from '@nestjs/common';
+import * as Sentry from '@sentry/node';
 
 type ModelPricing = {
   input: number;
@@ -75,7 +76,7 @@ export class ChatGptService {
 
       return { message: retMessage, price: price };
     } catch (error) {
-      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+      Sentry.captureException(new HttpException(error.message, HttpStatus.BAD_REQUEST));
     }
   }
 

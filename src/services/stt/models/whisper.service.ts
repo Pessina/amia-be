@@ -1,6 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import axios from 'axios';
 import * as FormData from 'form-data';
+import * as Sentry from '@sentry/node';
 
 @Injectable()
 export class WhisperService {
@@ -22,7 +23,7 @@ export class WhisperService {
       });
       return response.data.text;
     } catch (error) {
-      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+      Sentry.captureException(new HttpException(error.message, HttpStatus.BAD_REQUEST));
     }
   }
 
