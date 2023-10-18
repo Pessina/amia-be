@@ -4,9 +4,10 @@ import * as FormData from 'form-data';
 
 @Injectable()
 export class WhisperService {
-  private baseURL = 'https://api.openai.com/v1/audio/transcriptions';
+  private baseURL =
+    'https://nami-ai-whisper.openai.azure.com/openai/deployments/whisper/audio/transcriptions?api-version=2023-09-01-preview';
   private headers = {
-    Authorization: `Bearer ${process.env.OPEAN_AI_API_KEY}`,
+    'api-key': `${process.env.AZURE_OPEN_AI_WHISPER_API_KEY}`,
   };
 
   async convertAudioToText(file: Express.Multer.File): Promise<string> {
