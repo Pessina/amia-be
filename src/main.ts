@@ -11,7 +11,7 @@ async function bootstrap(): Promise<void> {
 
   app.useGlobalFilters(new AllExceptionsFilter());
   app.enableCors({
-    origin: 'http://localhost:3000',
+    origin: ['http://localhost:3000', 'https://app.namibr.com'],
   });
 
   // TODO: Finish configure swagger
