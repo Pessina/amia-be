@@ -40,4 +40,10 @@ export class DoctorService {
       where: { id },
     });
   }
+
+  async getDoctor(id: number): Promise<Doctor> {
+    return this.prisma.doctor.findUnique({
+      where: { id },
+    });
+  }
 }

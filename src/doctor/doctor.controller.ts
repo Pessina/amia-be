@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UseGuards, Delete, Req } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Delete, Req, Get } from '@nestjs/common';
 import { CreateDoctorDto, BaseDoctorDto } from './dto/create-doctor.dto';
 import { DoctorService } from './doctor.service';
 import { AppAuthGuard } from 'src/auth/guard';
@@ -27,5 +27,11 @@ export class DoctorController {
   @Delete()
   deleteDoctor(@Req() req: AuthRequest): Promise<void> {
     return this.doctorService.deleteDoctor(req.user.id);
+  }
+
+  @UseGuards(AppAuthGuard)
+  @Get()
+  async getDoctor(@Req() req: AuthRequest): Promise<Doctor> {
+    return this.doctorService.getDoctor(req.user.id);
   }
 }
