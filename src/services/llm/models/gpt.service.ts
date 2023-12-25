@@ -44,7 +44,7 @@ export type GptPipelineResponse = {
 
 export class ChatGptService {
   private baseURL =
-    'https://nami-ai-gpt4.openai.azure.com/openai/deployments/gpt4/chat/completions?api-version=2023-08-01-preview';
+    'https://nami-ai-gpt4.openai.azure.com/openai/deployments/gpt-4-1106-preview/chat/completions?api-version=2023-08-01-preview';
 
   async gpt(modelName = 'gpt-4', messages: Message[], schema?: PromptSchema): Promise<GptResponse> {
     const headers = {
