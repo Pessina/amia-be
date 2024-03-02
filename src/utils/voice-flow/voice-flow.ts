@@ -9,13 +9,6 @@ export default class VoiceFlow {
   }
 
   async interact(userId: string, request: InteractRequest): Promise<InteractResponse[]> {
-    console.log('Interacting with Voiceflow...');
-
-    console.log({
-      userId,
-      request,
-    });
-
     try {
       const response = await axios<InteractResponse[]>({
         method: 'POST',
@@ -23,8 +16,6 @@ export default class VoiceFlow {
         headers: { Authorization: this.apiKey },
         data: { request },
       });
-
-      console.log(response?.data?.[1]?.payload);
 
       return response.data;
     } catch (error) {
