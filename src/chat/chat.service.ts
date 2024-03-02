@@ -1,33 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import OpenAI from 'openai';
-import { MessagesDto } from './dto/messages.dto';
+import VoiceFlow, { InteractRequest, InteractResponse } from 'src/utils/voice-flow';
 
 @Injectable()
 export class ChatService {
-  private readonly openai: OpenAI;
+  interact(userId: string, request: InteractRequest): Promise<InteractResponse[] | undefined> {
+    const voiceFlow = new VoiceFlow({ apiKey: process.env.VOICE_FLOW_API_KEY });
 
-  constructor() {
-    this.openai = new OpenAI({
-      apiKey: process.env.OPEN_AI_API_KEY,
-    });
-  }
-
-  async chatCompletions({ messages }: MessagesDto): Promise<string> {
-    try {
-      const response = await this.openai.chat.completions.create({
-        model: 'gpt-3.5-turbo',
-        messages: messages.map((msg) => ({
-          role: msg.role,
-          content: msg.content,
-        })),
-      });
-
-      const messagesResponse = response.choices[0].message.content;
-
-      return messagesResponse;
-    } catch (error) {
-      console.error('Error calling OpenAI:', error);
-      throw new Error('Failed to call OpenAI service');
-    }
+    return voiceFlow.interact(userId, request);
   }
 }
